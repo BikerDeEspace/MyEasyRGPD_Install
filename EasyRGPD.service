@@ -1,0 +1,16 @@
+[Unit]
+Description=pialab
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=APP_DIRECTORY
+
+ExecStart=/usr/local/bin/docker-compose -f APP_DIRECTORY/docker-compose.yml up
+ExecStop=/usr/local/bin/docker-compose -f APP_DIRECTORY/docker-compose.yml down
+
+Restart=always
+
+[Install]
+WantedBy=default.target
