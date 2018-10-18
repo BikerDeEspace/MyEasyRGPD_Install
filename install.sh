@@ -157,7 +157,7 @@ git clone $GIT_URL -b $APP_VERSION $APP_DIRECTORY
 ################################
 # CLIENT CRENDETIAL (FRONTEND) #
 ################################
-if [ $APP -eq "frontend" ]; then
+if [ "$APP" = "frontend" ]; then
   #GET CRENDENTIALS
   read -p "Client id : " CLIENT_ID
   read -p "Client secret : " CLIENT_SECRET
