@@ -107,9 +107,11 @@ fi
 case $APP in
   'backend')
     bash $SERVICE_SCRIPT "BackEasyRGPD.service"
+    rm -rf "$APP_DIRECTORY/backend"
     ;;
   'frontend')
     bash $SERVICE_SCRIPT "FrontEasyRGPD.service"
+    rm -rf "$APP_DIRECTORY/frontend"
     ;;
 esac
 
