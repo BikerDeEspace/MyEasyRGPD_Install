@@ -4,7 +4,8 @@
 ### UNINSTALL SCRIPT WITHOUT SOURCES FILE  ###
 ### - LINUX VERSION                        ###
 ##############################################
-APP_PATH='/usr/share/pialab'
+APP_DIRECTORY='/usr/share/MyEasyRGPD'
+SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
 
 SYSTEM='N/A'
 APP='N/A'
@@ -82,58 +83,80 @@ if ! [[ $SYSTEM =~ (^|[[:space:]])"$OS"($|[[:space:]]) ]] ; then
 fi 
 
 ## TEST IF APPLICATION FOLDER EXIST
-if [ ! -d $APP_PATH ] ; then
-  echo "Application folder not found at $APP_PATH"
+if [ ! -d $APP_DIRECTORY ] ; then
+  echo "Application folder not found at $APP_DIRECTORY"
   exit 0
 fi
 
 ###################
 #### UNINSTALL ####
 ###################
-
 echo "*** UNINSTALL APPLICATION ***"
 echo "-SYSTEM: $SYSTEM"
 echo "-APP: $APP"
 
+#################################
+# UNINSTALL APPLICATION SERVICE #
+#################################
+$SERVICE_SCRIPT=$SCRIPT_DIRECTORY/uninstall/uninstall-service.sh
+if ! [ -f $SERVICE_SCRIPT ]; then
+  echo "Service install script not found!"
+  echo "Please Check : $SERVICE_SCRIPT"
+  exit 1
+fi
 
 case $APP in
-  ## BACKEND
   'backend')
-    cd $APP_PATH && bash setup/install/uninstall-prod.sh "BackEasyRGPD.service"
+    bash $SERVICE_SCRIPT "BackEasyRGPD.service"
     ;;
-  ## FRONTEND
   'frontend')
-    cd $APP_PATH && bash setup/uninstall/uninstall-prod.sh "FrontEasyRGPD.service"
+    bash $SERVICE_SCRIPT "FrontEasyRGPD.service"
     ;;
 esac
 
-# DOCKER REMOVE
-## REMOVE ALL (CONTAINER, NETWORKS, IMAGES, BUILD CACHE)
+##########################
+# REMOVE DOCKER ELEMENTS #
+##########################
+## Remove images
 if [ $RM_IMG -eq 1 ] ; then
   echo '** REMOVE IMAGES **'
   docker image rm $(docker image ls -a -q)
 fi
+## Remove volumes 
 if [ $RM_VOL -eq 1 ] ; then
   echo '** REMOVE VOLUMES **'
   docker volume rm $(docker volume ls -q)
 fi
+## Remove networks
 docker network rm $(docker network ls -q)
+## Remove containers
 docker container rm $(docker container ls -a -q)
 
-echo '** REMOVE PACKAGES **'
-# UNINSTALL NEEDED
+###################
+# REMOVE PACKAGES #
+###################
+$PACKAGES_SCRIPT=""
+
 case $SYSTEM in
-  ## UBUNTU
   'ubuntu')
-    bash "$APP_PATH/setup/uninstall/packages/apt.sh"
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/apt.sh
     ;;
-  ## UBUNTU
   'arch')
-    bash "$APP_PATH/setup/uninstall/packages/pacman.sh"
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/pacman.sh
     ;;
-  ## CENTOS
   'centos')
-    bash "$APP_PATH/setup/uninstall/packages/yum.sh"
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/yum.sh
     ;;
 esac
 
+if ! [ -f $PACKAGES_SCRIPT ]; then
+  echo "Package uninstall script not found!"
+  echo "Please Check : $PACKAGES_SCRIPT"
+  exit 1
+fi
+
+# Remove package script execution
+if ! [ bash $PACKAGES_SCRIPT ]; then
+  echo "Package uninstall fail"
+  exit 1
+fi

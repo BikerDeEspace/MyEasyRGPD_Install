@@ -4,8 +4,10 @@
 ### INSTALL SCRIPT WITHOUT SOURCES FILE  ###
 ### - LINUX VERSION                      ###
 ############################################
-APP_VERSION='change-structure'
-APP_PATH='/usr/share/myeasyrgpd'
+APP_VERSION='master'
+
+APP_DIRECTORY='/usr/share/MyEasyRGPD'
+SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
 
 SYSTEM='N/A'
 APP='N/A'
@@ -64,7 +66,6 @@ if ! [[ $LIST_APP =~ (^|[[:space:]])"$APP"($|[[:space:]]) ]] ; then
   echo "ERROR - Unknown APP: $APP"
   exit 1
 fi
-
 ## TEST LINUX DISTRIBUTION
 OS=$(sed -n -e '/PRETTY_NAME/ s/^.*=\|"\| .*//gp' /etc/os-release | tr '[:upper:]' '[:lower:]')
 if ! [[ $SYSTEM =~ (^|[[:space:]])"$OS"($|[[:space:]]) ]] ; then
@@ -75,46 +76,60 @@ fi
 #################
 #### INSTALL ####
 #################
-
 echo "*** INSTALL APPLICATION ***"
 echo "- SYSTEM: $SYSTEM"
 echo "- APP: $APP"
 
-# INSTALL PACKAGE & GET APPLICATION
-echo "** INSTALL PACKAGES **"
+####################
+# INSTALL PACKAGES #
+####################
+$PACKAGES_SCRIPT=""
+
 case $SYSTEM in
-  ## UBUNTU
   'ubuntu')
-    if ! bash "./install/packages/apt.sh" ; then 
-      echo "Echec de l'installation des packages!"
-      exit 1
-    fi
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/apt.sh
     ;;
-  ## ARCH
   'arch')
-    if ! bash "/install/packages/pacman.sh" ; then 
-      echo "Echec de l'installation des packages!"
-      exit 1
-    fi
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/pacman.sh
     ;;
-  ## CENT OS
   'centos')
-    if ! bash "./install/packages/yum.sh" ; then
-      echo "Echec de l'installation des packages!"
-      exit 1
-    fi
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/yum.sh
     ;;
 esac
 
-# INSTALL APPLICATION
-echo "** INSTALL SELECTED APP **"
+if ! [ -f $PACKAGES_SCRIPT ]; then
+  echo "Package uninstall script not found!"
+  echo "Please Check : $PACKAGES_SCRIPT"
+  exit 1
+fi
+
+# Install package script execution
+if ! [ bash $PACKAGES_SCRIPT ]; then
+  echo "Package install fail"
+  exit 1
+fi
+
+###################
+# INSTALL SERVICE #
+###################
+$SERVICE_SCRIPT=$SCRIPT_DIRECTORY/install/install-service.sh
+if ! [ -f $SERVICE_SCRIPT ]; then
+  echo "Service install script not found!"
+  echo "Please Check : $SERVICE_SCRIPT"
+  exit 1
+fi
+
 case $APP in
-  ## BACKEND
   'backend')
-    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git -b "$APP_VERSION" "$APP_PATH"
+    APP_DIRECTORY="$APP_DIRECTORY/backend"
+    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git -b $APP_VERSION $APP_DIRECTORY
+
+    bash $SERVICE_SCRIPT $SCRIPT_DIRECTORY $APP_DIRECTORY "BackEasyRGPD.service"
     ;;
-  ## FRONTEND
   'frontend')
-    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git -b "$APP_VERSION" "$APP_PATH"
+    APP_DIRECTORY="$APP_DIRECTORY/frontend"
+    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git -b $APP_VERSION $APP_DIRECTORY
+
+    bash $SERVICE_SCRIPT $SCRIPT_DIRECTORY $APP_DIRECTORY "FrontEasyRGPD.service"
     ;;
 esac
