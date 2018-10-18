@@ -186,6 +186,13 @@ if ! bash $SERVICE_SCRIPT $SCRIPT_DIRECTORY $APP_DIRECTORY $SERVICE_NAME ; then
   exit 1
 fi 
 
+#####################
+# INIT DB (BACKEND) #
+#####################
+if [ "$APP" = "backend" ]; then
+  docker-compose -f "$APP_DIRECTORY/docker-compose.yml" exec backend-php "./post_install_scripts/wait_postgres.sh ./post_install_scripts/post_install.sh"
+fi
+
 ######################
 # END INSTALL SCRIPT #
 ######################

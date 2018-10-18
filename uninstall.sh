@@ -116,7 +116,7 @@ case $APP in
 esac
 
 #TODO only if they are no other app
-if [ -n "$(ls -A $APP_DIRECTORY)" ]; then
+if [ "$(ls -A $APP_DIRECTORY)" ]; then
   ##########################
   # REMOVE DOCKER ELEMENTS #
   ##########################
