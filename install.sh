@@ -163,9 +163,9 @@ if [ "$APP" = "frontend" ]; then
   read -p "Client secret : " CLIENT_SECRET
   read -p "Backend url (Ex: http://back.myeasyrgpd.com): " BACKEND_URL
   #SET CREDENTIALS 
-  sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' $APP_DIRECTORY/docker-compose.yml
-  sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' $APP_DIRECTORYY/docker-compose.yml
-  sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' $APP_DIRECTORY/docker-compose.yml
+  sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' "$APP_DIRECTORY/docker-compose.yml"
+  sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' "$APP_DIRECTORYY/docker-compose.yml"
+  sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' "$APP_DIRECTORY/docker-compose.yml"
 fi
 
 ###########################
