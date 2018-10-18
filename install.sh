@@ -15,6 +15,8 @@ APP='N/A'
 LIST_SYSTEM="ubuntu arch centos"
 LIST_APP="backend frontend"
 
+FORCE=0
+
 ############################
 ### COMMAND LINE OPTIONS ###
 ############################
@@ -26,16 +28,20 @@ Command line options:
     -a  APP         App to install (backend, frontend)
                       default: N/A
 
+    -f              Uninstall old app if exist 
     -h              Print this help menu
 '
 
-while getopts "s:a:h" opt; do
+while getopts "s:a:fh" opt; do
   case $opt in
     s)
       SYSTEM="$OPTARG" >&2
       ;;
     a)
       APP="$OPTARG" >&2
+      ;;
+    f)
+      FORCE=1
       ;;
     h)
       echo "$COMMAND_LINE_OPTIONS_HELP"
@@ -72,6 +78,18 @@ if ! [[ $SYSTEM =~ (^|[[:space:]])"$OS"($|[[:space:]]) ]] ; then
   echo "No match system : $SYSTEM"
   exit 1
 fi 
+
+###################
+#### UNINSTALL ####
+###################
+# OPT F : TEST IF UNISTALL SCRIPT EXIST
+if [ $FORCE -eq 1 ]; then
+  if ! [[ -f "$SCRIPT_DIRECTORY/uninstall/uninstall.sh" ]] ; then
+    echo "Uninstall script not found!"
+    exit 1
+  fi
+  bash "$SCRIPT_DIRECTORY/uninstall/uninstall.sh" -a $APP -s $SYSTEM -i
+fi
 
 #################
 #### INSTALL ####
@@ -143,7 +161,7 @@ if [ $APP -eq "frontend" ]; then
   #GET CRENDENTIALS
   read -p "Client id : " CLIENT_ID
   read -p "Client secret : " CLIENT_SECRET
-  read -p "Backend url : " BACKEND_URL
+  read -p "Backend url (Ex: http://back.myeasyrgpd.com): " BACKEND_URL
   #SET CREDENTIALS 
   sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' $APP_DIRECTORY/docker-compose.yml
   sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' $APP_DIRECTORYY/docker-compose.yml
@@ -172,4 +190,22 @@ fi
 # END INSTALL SCRIPT #
 ######################
 
-echo "systemctl status $SERVICE_NAME"
+## WAIT FOR THE APPLICATION
+while [ ! $(curl --output /dev/null --silent --head http://localhost) ] ; do
+    echo 'Loading application. Please Wait'
+    #SHOW LOGS
+    echo 'Logs:'
+    journalctl --unit=$SERVICE_NAME | tail -n 2
+
+    #TEST IF APP NOT FAIL
+    if $(systemctl is-failed --quiet $SERVICE_NAME); then
+        echo 'ERROR - Unknown'
+        journalctl --unit=$SERVICE_NAME | tail -n 2
+        exit 1
+    fi
+    sleep 10
+done
+
+#APPLICATION READY
+echo "Application available on:" 
+echo "-> URL: http://$HOSTNAME"

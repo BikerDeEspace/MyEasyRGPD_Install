@@ -49,25 +49,3 @@ systemctl enable $SERVICE_FILE_NAME
 systemctl daemon-reload
 # Start the service 
 systemctl start $SERVICE_FILE_NAME
-
-
-## WAIT FOR THE APPLICATION
-#while [ ! $(curl --output /dev/null --silent --head http://localhost) ] ; do
-#    echo 'Loading application. Please Wait'
-#    #SHOW LOGS
-#    echo 'Logs:'
-#    journalctl --unit=$SERVICE_FILE_NAME | tail -n 2
-#
-#    #TEST IF APP NOT FAIL
-#    if $(systemctl is-failed --quiet $SERVICE_FILE_NAME); then
-#        echo 'ERROR - Unknown'
-#        journalctl --unit=$SERVICE_FILE_NAME | tail -n 2
-#        exit 1
-#    fi
-#
-#    sleep 10
-#done
-
-#APPLICATION READY
-#echo "Application available on:" 
-#echo "-> URL: http://$HOSTNAME"
