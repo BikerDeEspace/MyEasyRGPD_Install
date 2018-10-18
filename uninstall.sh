@@ -97,7 +97,7 @@ echo "-APP: $APP"
 #################################
 # UNINSTALL APPLICATION SERVICE #
 #################################
-$SERVICE_SCRIPT="$SCRIPT_DIRECTORY/uninstall/uninstall-service.sh"
+SERVICE_SCRIPT="$SCRIPT_DIRECTORY/uninstall/uninstall-service.sh"
 if ! [ -f $SERVICE_SCRIPT ]; then
   echo "Service install script not found!"
   echo "Please Check : $SERVICE_SCRIPT"
@@ -134,17 +134,17 @@ docker container rm $(docker container ls -a -q)
 ###################
 # REMOVE PACKAGES #
 ###################
-$PACKAGES_SCRIPT=""
+PACKAGES_SCRIPT=""
 
 case $SYSTEM in
   'ubuntu')
-    $PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/ubuntu.sh"
+    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/ubuntu.sh"
     ;;
   'arch')
-    $PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/archlinux.sh"
+    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/archlinux.sh"
     ;;
   'centos')
-    $PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/centos.sh"
+    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/centos.sh"
     ;;
 esac
 

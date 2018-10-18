@@ -83,17 +83,17 @@ echo "- APP: $APP"
 ####################
 # INSTALL PACKAGES #
 ####################
-$PACKAGES_SCRIPT=""
+PACKAGES_SCRIPT=""
 
 case $SYSTEM in
   'ubuntu')
-    $PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/install/packages/ubuntu.sh"
+    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/install/packages/ubuntu.sh"
     ;;
   'arch')
-    $PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/install/packages/archlinux.sh"
+    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/install/packages/archlinux.sh"
     ;;
   'centos')
-    $PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/install/packages/centos.sh"
+    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/install/packages/centos.sh"
     ;;
 esac
 
@@ -112,7 +112,7 @@ fi
 ###################
 # INSTALL SERVICE #
 ###################
-$SERVICE_SCRIPT="$SCRIPT_DIRECTORY/install/install-service.sh"
+SERVICE_SCRIPT="$SCRIPT_DIRECTORY/install/install-service.sh"
 if ! [ -f $SERVICE_SCRIPT ]; then
   echo "Service install script not found!"
   echo "Please Check : $SERVICE_SCRIPT"
