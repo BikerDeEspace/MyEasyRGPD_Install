@@ -26,6 +26,7 @@ SERVICE_FILE_NAME=$3
 ################
 # SCRIPT BEGIN #
 ################
+echo "** Install Service $SERVICE_FILE_NAME **"
 
 ## CHECK IF SERVICE FILE EXIST
 if ! [[ -f $MAIN_DIRECTORY/EasyRGPD.service ]] ; then

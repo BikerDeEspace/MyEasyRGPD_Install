@@ -14,6 +14,7 @@ SERVICE_FILE_NAME=$1
 ################
 # SCRIPT BEGIN #
 ################
+echo "** Remove Service $SERVICE_FILE_NAME **"
 
 # STOP SERVICE IF ACTIVE
 if $(systemctl is-active --quiet $SERVICE_FILE_NAME); then 
