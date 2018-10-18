@@ -97,14 +97,14 @@ case $SYSTEM in
     ;;
 esac
 
-if ! [ -f $PACKAGES_SCRIPT ]; then
+if [ ! -f $PACKAGES_SCRIPT ]; then
   echo "Package uninstall script not found!"
   echo "Please Check : $PACKAGES_SCRIPT"
   exit 1
 fi
 
 # Install package script execution
-if ! [ bash $PACKAGES_SCRIPT ]; then
+if [ ! bash $PACKAGES_SCRIPT ]; then
   echo "Package install fail"
   exit 1
 fi
@@ -113,7 +113,7 @@ fi
 # INSTALL SERVICE #
 ###################
 SERVICE_SCRIPT="$SCRIPT_DIRECTORY/install/install-service.sh"
-if ! [ -f $SERVICE_SCRIPT ]; then
+if [ ! -f $SERVICE_SCRIPT ]; then
   echo "Service install script not found!"
   echo "Please Check : $SERVICE_SCRIPT"
   exit 1
