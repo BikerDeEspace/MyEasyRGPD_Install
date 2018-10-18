@@ -1,5 +1,5 @@
 [Unit]
-Description=pialab
+Description=MyEasyRGPD
 Requires=docker.service
 After=docker.service
 
