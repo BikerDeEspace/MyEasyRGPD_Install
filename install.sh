@@ -79,9 +79,9 @@ if ! [[ $SYSTEM =~ (^|[[:space:]])"$OS"($|[[:space:]]) ]] ; then
   exit 1
 fi 
 
-###################
-#### UNINSTALL ####
-###################
+###########################
+#### UNINSTALL OLD APP ####
+###########################
 # OPT F : TEST IF UNISTALL SCRIPT EXIST
 if [ $FORCE -eq 1 ]; then
   if ! [[ -f "$SCRIPT_DIRECTORY/uninstall/uninstall.sh" ]] ; then
@@ -191,21 +191,21 @@ fi
 ######################
 
 ## WAIT FOR THE APPLICATION
-while [ ! $(curl --output /dev/null --silent --head http://localhost) ] ; do
-    echo 'Loading application. Please Wait'
-    #SHOW LOGS
-    echo 'Logs:'
-    journalctl --unit=$SERVICE_NAME | tail -n 2
-
-    #TEST IF APP NOT FAIL
-    if $(systemctl is-failed --quiet $SERVICE_NAME); then
-        echo 'ERROR - Unknown'
-        journalctl --unit=$SERVICE_NAME | tail -n 2
-        exit 1
-    fi
-    sleep 10
-done
+#while [ ! $(curl --output /dev/null --silent --head http://localhost) ] ; do
+#    echo 'Loading application. Please Wait'
+#    #SHOW LOGS
+#    echo 'Logs:'
+#    journalctl --unit=$SERVICE_NAME | tail -n 2
+#
+#    #TEST IF APP NOT FAIL
+#    if $(systemctl is-failed --quiet $SERVICE_NAME); then
+#        echo 'ERROR - Unknown'
+#        journalctl --unit=$SERVICE_NAME | tail -n 2
+#        exit 1
+#    fi
+#    sleep 10
+#done
 
 #APPLICATION READY
-echo "Application available on:" 
-echo "-> URL: http://$HOSTNAME"
+#echo "Application available on:" 
+#echo "-> URL: http://$HOSTNAME"

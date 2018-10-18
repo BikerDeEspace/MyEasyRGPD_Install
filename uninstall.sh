@@ -136,28 +136,31 @@ docker container rm $(docker container ls -a -q)
 ###################
 # REMOVE PACKAGES #
 ###################
-PACKAGES_SCRIPT=""
+# REMOVE PACKAGES ONLY IF THEY ARE NO OTHER APP
+if [ -n "$(ls -A $APP_DIRECTORY)" ]; then
+  PACKAGES_SCRIPT=""
 
-case $SYSTEM in
-  'ubuntu')
-    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/ubuntu.sh"
-    ;;
-  'arch')
-    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/archlinux.sh"
-    ;;
-  'centos')
-    PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/centos.sh"
-    ;;
-esac
+  case $SYSTEM in
+    'ubuntu')
+      PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/ubuntu.sh"
+      ;;
+    'arch')
+      PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/archlinux.sh"
+      ;;
+    'centos')
+      PACKAGES_SCRIPT="$SCRIPT_DIRECTORY/uninstall/packages/centos.sh"
+      ;;
+  esac
 
-if [ ! -f $PACKAGES_SCRIPT ]; then
-  echo "Package uninstall script not found!"
-  echo "Please Check : $PACKAGES_SCRIPT"
-  exit 1
-fi
+  if [ ! -f $PACKAGES_SCRIPT ]; then
+    echo "Package uninstall script not found!"
+    echo "Please Check : $PACKAGES_SCRIPT"
+    exit 1
+  fi
 
-# Remove package script execution
-if ! bash $PACKAGES_SCRIPT ; then
-  echo "Package uninstall fail"
-  exit 1
+  # Remove package script execution
+  if ! bash $PACKAGES_SCRIPT ; then
+    echo "Package uninstall fail"
+    exit 1
+  fi
 fi
