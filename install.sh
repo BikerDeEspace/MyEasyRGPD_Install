@@ -112,6 +112,7 @@ fi
 ###########################
 # PREPARE INSTALL SERVICE #
 ###########################
+GIT_URL=""
 SERVICE_NAME=""
 SERVICE_SCRIPT="$SCRIPT_DIRECTORY/install/install-service.sh"
 if [ ! -f $SERVICE_SCRIPT ]; then
@@ -124,16 +125,30 @@ case $APP in
   'backend')
     APP_DIRECTORY="$APP_DIRECTORY/backend"
     SERVICE_NAME="BackEasyRGPD.service"
-
-    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git -b $APP_VERSION $APP_DIRECTORY
+    GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
     ;;
   'frontend')
     APP_DIRECTORY="$APP_DIRECTORY/frontend"
     SERVICE_NAME="FrontEasyRGPD.service"
-
-    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git -b $APP_VERSION $APP_DIRECTORY
+    GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
     ;;
 esac
+
+git clone $GIT_URL -b $APP_VERSION $APP_DIRECTORY
+
+################################
+# CLIENT CRENDETIAL (FRONTEND) #
+################################
+if [ $APP -eq "frontend" ]; then
+  #GET CRENDENTIALS
+  read -p "Client id : " CLIENT_ID
+  read -p "Client secret : " CLIENT_SECRET
+  read -p "Backend url : " BACKEND_URL
+  #SET CREDENTIALS 
+  sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' $APP_DIRECTORY/docker-compose.yml
+  sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' $APP_DIRECTORYY/docker-compose.yml
+  sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' $APP_DIRECTORY/docker-compose.yml
+fi
 
 ###########################
 # ENV FILE (LETS_ENCRYPT) #
@@ -156,3 +171,5 @@ fi
 ######################
 # END INSTALL SCRIPT #
 ######################
+
+echo "systemctl status $SERVICE_NAME"

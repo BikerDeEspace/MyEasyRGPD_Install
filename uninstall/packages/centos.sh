@@ -9,7 +9,7 @@
 rm -rf /usr/local/bin/docker-compose
 
 # REMOVE DOCKER
-yum remove docker \
+yum remove -y docker \
     docker-client \
     docker-client-latest \
     docker-common \

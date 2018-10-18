@@ -13,7 +13,7 @@ yum install -y yum-utils device-mapper-persistent-data lvm2 curl net-tools
 ## set up the stable repository
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 # Install DOCKER CE
-yum install docker-ce
+yum install -y docker-ce
 
 #### INSTALL DOCKER COMPOSE #### 
 
