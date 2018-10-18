@@ -87,13 +87,13 @@ $PACKAGES_SCRIPT=""
 
 case $SYSTEM in
   'ubuntu')
-    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/apt.sh
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/ubuntu.sh
     ;;
   'arch')
-    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/pacman.sh
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/archlinux.sh
     ;;
   'centos')
-    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/yum.sh
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/install/packages/centos.sh
     ;;
 esac
 

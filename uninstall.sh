@@ -74,7 +74,6 @@ if ! [[ $LIST_APP =~ (^|[[:space:]])"$APP"($|[[:space:]]) ]] ; then
   echo "ERROR - Unknown APP: $APP"
   exit 1
 fi
-
 ## TEST LINUX DISTRIBUTION
 OS=$(sed -n -e '/PRETTY_NAME/ s/^.*=\|"\| .*//gp' /etc/os-release | tr '[:upper:]' '[:lower:]')
 if ! [[ $SYSTEM =~ (^|[[:space:]])"$OS"($|[[:space:]]) ]] ; then
@@ -139,13 +138,13 @@ $PACKAGES_SCRIPT=""
 
 case $SYSTEM in
   'ubuntu')
-    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/apt.sh
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/ubuntu.sh
     ;;
   'arch')
-    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/pacman.sh
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/archlinux.sh
     ;;
   'centos')
-    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/yum.sh
+    $PACKAGES_SCRIPT=$SCRIPT_DIRECTORY/uninstall/packages/centos.sh
     ;;
 esac
 
