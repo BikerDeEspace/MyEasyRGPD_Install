@@ -14,7 +14,7 @@
 ## ARGUMENTS NUMBER
 if ! [ $# -eq 3 ] ; then
     echo 'Arguments missing (3 Needed)'
-    echo ' - MAIN_DIRECTORY'
+    echo ' - MAIN_DIRECTORY (Service file example location)'
     echo ' - APP_DIRECTORY'
     echo ' - SERVICE_FILE_NAME'
     exit 1
@@ -50,23 +50,23 @@ systemctl daemon-reload
 systemctl start $SERVICE_FILE_NAME
 
 
-# WAIT FOR THE APPLICATION
-while [ ! $(curl --output /dev/null --silent --head http://localhost) ] ; do
-    echo 'Loading application. Please Wait'
-    #SHOW LOGS
-    echo 'Logs:'
-    journalctl --unit=$SERVICE_FILE_NAME | tail -n 2
-
-    #TEST IF APP NOT FAIL
-    if $(systemctl is-failed --quiet $SERVICE_FILE_NAME); then
-        echo 'ERROR - Unknown'
-        journalctl --unit=$SERVICE_FILE_NAME | tail -n 2
-        exit 1
-    fi
-
-    sleep 10
-done
+## WAIT FOR THE APPLICATION
+#while [ ! $(curl --output /dev/null --silent --head http://localhost) ] ; do
+#    echo 'Loading application. Please Wait'
+#    #SHOW LOGS
+#    echo 'Logs:'
+#    journalctl --unit=$SERVICE_FILE_NAME | tail -n 2
+#
+#    #TEST IF APP NOT FAIL
+#    if $(systemctl is-failed --quiet $SERVICE_FILE_NAME); then
+#        echo 'ERROR - Unknown'
+#        journalctl --unit=$SERVICE_FILE_NAME | tail -n 2
+#        exit 1
+#    fi
+#
+#    sleep 10
+#done
 
 #APPLICATION READY
-echo "Application available on:" 
-echo "-> URL: http://$HOSTNAME"
+#echo "Application available on:" 
+#echo "-> URL: http://$HOSTNAME"
