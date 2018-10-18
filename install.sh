@@ -104,7 +104,7 @@ if [ ! -f $PACKAGES_SCRIPT ]; then
 fi
 
 # Install package script execution
-if [ ! bash $PACKAGES_SCRIPT ]; then
+if ! bash $PACKAGES_SCRIPT ; then
   echo "Package install fail"
   exit 1
 fi

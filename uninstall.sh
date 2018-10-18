@@ -155,7 +155,7 @@ if [ ! -f $PACKAGES_SCRIPT ]; then
 fi
 
 # Remove package script execution
-if [ ! bash $PACKAGES_SCRIPT ]; then
+if ! bash $PACKAGES_SCRIPT ; then
   echo "Package uninstall fail"
   exit 1
 fi
