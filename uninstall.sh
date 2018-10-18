@@ -115,29 +115,29 @@ case $APP in
     ;;
 esac
 
-##########################
-# REMOVE DOCKER ELEMENTS #
-##########################
-## Remove images
-if [ $RM_IMG -eq 1 ] ; then
-  echo '** REMOVE IMAGES **'
-  docker image rm $(docker image ls -a -q)
-fi
-## Remove volumes 
-if [ $RM_VOL -eq 1 ] ; then
-  echo '** REMOVE VOLUMES **'
-  docker volume rm $(docker volume ls -q)
-fi
-## Remove networks
-docker network rm $(docker network ls -q)
-## Remove containers
-docker container rm $(docker container ls -a -q)
-
-###################
-# REMOVE PACKAGES #
-###################
-# REMOVE PACKAGES ONLY IF THEY ARE NO OTHER APP
+#TODO only if they are no other app
 if [ -n "$(ls -A $APP_DIRECTORY)" ]; then
+  ##########################
+  # REMOVE DOCKER ELEMENTS #
+  ##########################
+  ## Remove images
+  if [ $RM_IMG -eq 1 ] ; then
+    echo '** REMOVE IMAGES **'
+    docker image rm $(docker image ls -a -q)
+  fi
+  ## Remove volumes 
+  if [ $RM_VOL -eq 1 ] ; then
+    echo '** REMOVE VOLUMES **'
+    docker volume rm $(docker volume ls -q)
+  fi
+  ## Remove networks
+  docker network rm $(docker network ls -q)
+  ## Remove containers
+  docker container rm $(docker container ls -a -q)
+
+  ###################
+  # REMOVE PACKAGES #
+  ###################
   PACKAGES_SCRIPT=""
 
   case $SYSTEM in
