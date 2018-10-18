@@ -37,7 +37,7 @@ fi
 # SERVICE
 # Create a clean copy of the service file
 cp $MAIN_DIRECTORY/EasyRGPD.service $MAIN_DIRECTORY/$SERVICE_FILE_NAME
-sed -i 's,DEFAULT_DIRECTORY,'"$APP_DIRECTORY"',g' $MAIN_DIRECTORY/$SERVICE_FILE_NAME
+sed -i 's,APP_DIRECTORY,'"$APP_DIRECTORY"',g' $MAIN_DIRECTORY/$SERVICE_FILE_NAME
 
 # Move the new service file in "/etc/systemd/system/" directory
 mv $MAIN_DIRECTORY/$SERVICE_FILE_NAME  /etc/systemd/system/$SERVICE_FILE_NAME
