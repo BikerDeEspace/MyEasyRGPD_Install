@@ -103,15 +103,16 @@ if [ ! -f $PACKAGES_SCRIPT ]; then
   exit 1
 fi
 
-# Install package script execution
+#EXEC
 if ! bash $PACKAGES_SCRIPT ; then
   echo "Package install fail"
   exit 1
 fi
 
-###################
-# INSTALL SERVICE #
-###################
+###########################
+# PREPARE INSTALL SERVICE #
+###########################
+SERVICE_NAME=""
 SERVICE_SCRIPT="$SCRIPT_DIRECTORY/install/install-service.sh"
 if [ ! -f $SERVICE_SCRIPT ]; then
   echo "Service install script not found!"
@@ -122,14 +123,36 @@ fi
 case $APP in
   'backend')
     APP_DIRECTORY="$APP_DIRECTORY/backend"
-    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git -b $APP_VERSION $APP_DIRECTORY
+    SERVICE_NAME="BackEasyRGPD.service"
 
-    bash $SERVICE_SCRIPT $SCRIPT_DIRECTORY $APP_DIRECTORY "BackEasyRGPD.service"
+    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git -b $APP_VERSION $APP_DIRECTORY
     ;;
   'frontend')
     APP_DIRECTORY="$APP_DIRECTORY/frontend"
-    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git -b $APP_VERSION $APP_DIRECTORY
+    SERVICE_NAME="FrontEasyRGPD.service"
 
-    bash $SERVICE_SCRIPT $SCRIPT_DIRECTORY $APP_DIRECTORY "FrontEasyRGPD.service"
+    git clone https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git -b $APP_VERSION $APP_DIRECTORY
     ;;
 esac
+
+###########################
+# ENV FILE (LETS_ENCRYPT) #
+###########################
+if [ ! -f $SCRIPT_DIRECTORY/.env ]; then
+  echo "env file not found!"
+  echo "Please Check : $SCRIPT_DIRECTORY/.env"
+  exit 1
+fi
+cp $SCRIPT_DIRECTORY/.env $APP_DIRECTORY/.env
+
+###################
+# INSTALL SERVICE #
+###################
+if ! bash $SERVICE_SCRIPT $SCRIPT_DIRECTORY $APP_DIRECTORY $SERVICE_NAME ; then
+  echo "Install service fail"
+  exit 1
+fi 
+
+######################
+# END INSTALL SCRIPT #
+######################
