@@ -1,5 +1,60 @@
 #!/usr/bin/env bash
 
+# Params
+## MAIN_DIRECTORY=$1
+## APP_DIRECTORY=$2
+## SERVICE_FILE_NAME=$3
+install_service () {
+  MAIN_DIRECTORY=$1
+  APP_DIRECTORY=$2
+  SERVICE_FILE_NAME=$3
+
+  echo "** Install Service $SERVICE_FILE_NAME **"
+
+  ## CHECK IF SERVICE FILE EXIST
+  if ! [[ -f $MAIN_DIRECTORY/EasyRGPD.service ]] ; then
+      echo 'Service file not found! Please check :'
+      echo " - $MAIN_DIRECTORY/EasyRGPD.service"
+      exit 1
+  fi
+
+  # SERVICE
+  # Create a clean copy of the service file
+  cp $MAIN_DIRECTORY/example.service $MAIN_DIRECTORY/$SERVICE_FILE_NAME
+  sed -i 's,APP_DIRECTORY,'"$APP_DIRECTORY"',g' $MAIN_DIRECTORY/$SERVICE_FILE_NAME
+
+  # Move the new service file in "/etc/systemd/system/" directory
+  mv $MAIN_DIRECTORY/$SERVICE_FILE_NAME  /etc/systemd/system/$SERVICE_FILE_NAME
+
+  ## Enable the service at startup
+  systemctl enable $SERVICE_FILE_NAME
+  ## Reload the deamon
+  systemctl daemon-reload
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############################################
 ### INSTALL SCRIPT WITHOUT SOURCES FILE  ###
 ### - LINUX VERSION                      ###
