@@ -21,6 +21,17 @@ readonly ARGNUM="$#"
 #############
 # FUNCTIONS #
 #############
+usage() {
+	echo "Script description"
+	echo
+	echo "Usage: $PROGNAME [options]..."
+	echo
+	echo "Options:"
+	echo
+	echo "  -h, --help"
+	echo "      This help text."
+	echo
+}
 install_service(){
   if ! [ -f /etc/systemd/system/$SERVICE_FILE_NAME ]; then
     echo "** Install Service $2 **"
@@ -43,6 +54,50 @@ install_service(){
   echo "** Start Service $2 **"
   systemctl start $2
 }
+
+while [ "$#" -gt 0 ]
+do
+	case "$1" in
+  #Help
+	-h|--help)
+		usage
+		exit 0
+		;;
+  #Organisation 
+	-o|--org)
+		ORGNAME="$2"
+		;;
+  #Application
+	-b|--backend)
+		backend=1
+		;;
+	-f|--frontend)
+		frontend=1
+		;;
+  #Proxy & Letsencrypt
+	--vhost)
+		VIRTUAL_HOST="$2"
+		;;
+	--encrypt-host)
+		LETSENCRYPT_HOST="$2"
+		;;
+	--encrypt-mail)
+		LETSENCRYPT_EMAIL="$2"
+		;;
+  #Others 
+	--)
+		break
+		;;
+	-*)
+		echo "Invalid option '$1'. Use --help to see the valid options" >&2
+		exit 1
+		;;
+	#Option argument, continue
+	*)	;;
+	esac
+	shift
+done
+
 
 ############
 # PACKAGES #
@@ -97,23 +152,49 @@ fi
 # INSTALL SELECTED APP #
 ########################
 
-case $APP in
-  'backend')
-    GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
-    ;;
-  'frontend')
-    GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
-    ;;
-esac
+
+# BACKEND
+
+## TODO
+# Post install
+
+if [ $backend - eq 1 ]; then 
+  readonly APPDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
+  readonly BACKEND_SERVICE_NAME="back.$ORGORGNAME.MyEasyRGPD.service"
+
+  if ! [ -d $APPDIR ]; then 
+    readonly GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
+    git clone $GIT_URL $APPDIR
+  fi
+
+  if ! [ install_service $APPDIR $BACKEND_SERVICE_NAME ]; then
+    echo "Fail to create service: $BACKEND_SERVICE_NAME"
+    exit 1
+  fi
+fi 
 
 
+# FRONTEND
 
-readonly VIRTUAL_HOST=
-readonly LETSENCRYPT_HOST=
-readonly LETSENCRYPT_EMAIL=
-readonly HOST_PORT=
+## TODO
+#readonly CLIENT_ID=
+#readonly CLIENT_SECRET=
+#readonly BACKEND_URL=
 
-readonly CLIENT_ID=
-readonly CLIENT_SECRET=
-readonly BACKEND_URL=
+if [ $frontend -eq 1 ]; then
+  readonly APPDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
+  readonly FRONTEND_SERVICE_NAME="front.$ORGORGNAME.MyEasyRGPD.service"
+
+  if ! [ -d $APPDIR ]; then 
+    readonly GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
+    git clone $GIT_URL $APPDIR
+  fi
+
+  if ! [ install_service $APPDIR $FRONTEND_SERVICE_NAME ]; then
+    echo "Fail to create service: $FRONTEND_SERVICE_NAME"
+    exit 1
+  fi
+fi
+
+
 
