@@ -29,6 +29,32 @@ usage() {
 	echo "  -h, --help"
 	echo "      This help text."
 	echo
+    echo "  -o, --org"
+    echo "      <Help>"
+	echo
+	echo "  -b, --backend" 
+    echo "      <Help>"
+    echo
+	echo "  -f, --frontend"
+    echo "      <Help>"
+    echo
+	echo "  -v, --vhost"
+    echo "      <Help>"
+    echo
+	echo "  -h, --encrypt-host"
+    echo "      <Help>"
+    echo
+	echo "  -m, --encrypt-mail"
+    echo "      <Help>"
+    echo
+	echo "  -i, --client-id)"
+    echo "      <Help>"  
+    echo
+	echo "  -s, --client-secret"
+    echo "      <Help>"   
+    echo
+	echo "  -u, --backend-url"
+    echo "      <Help>"
 }
 
 ##################
@@ -54,23 +80,23 @@ do
 		frontend=1
 		;;
   #Proxy & Letsencrypt
-	--vhost)
+	-v |--vhost)
 		VIRTUAL_HOST="$2"
 		;;
-	--encrypt-host)
+	-h |--encrypt-host)
 		LETSENCRYPT_HOST="$2"
 		;;
-	--encrypt-mail)
+	-m |--encrypt-mail)
 		LETSENCRYPT_EMAIL="$2"
 		;;
   #Frontend credentials
-	--client-id)
+	-i|--client-id)
 		CLIENT_ID="$2"
 		;;
-	--client-secret)
+	-s|--client-secret)
 		CLIENT_SECRET="$2"
 		;;
-	--backend-url)
+	-u|--backend-url)
 		BACKEND_URL="$2"
 		;;
   #Others 
@@ -91,7 +117,7 @@ done
 # VERIFICATION OPTIONS #
 ########################
 #Organisation
-if [ -z $ORGNAME -o ]; then
+if [ -z $ORGNAME ]; then
     echo 'Empty Org'
     exit 1
 fi
@@ -131,5 +157,5 @@ echo "LETSENCRYPT_EMAIL" $LETSENCRYPT_EMAIL
 echo "frontend" $frontend
 echo "  CLIENT_ID" $CLIENT_ID
 echo "  CLIENT_SECRET" $CLIENT_SECRET
-echo "  BACKEND_URL" $BACKEND_URL
+echo "BACKEND_URL" $BACKEND_URL
 echo "backend" $backend

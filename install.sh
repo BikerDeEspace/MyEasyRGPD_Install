@@ -23,6 +23,7 @@ readonly ARGNUM="$#"
 #############
 
 # SCRIPT HELP MENU
+# SCRIPT HELP MENU
 usage() {
 	echo "Script description"
 	echo
@@ -33,6 +34,32 @@ usage() {
 	echo "  -h, --help"
 	echo "      This help text."
 	echo
+  echo "  -o, --org"
+  echo "      <Help>"
+	echo
+	echo "  -b, --backend" 
+  echo "      <Help>"
+  echo
+	echo "  -f, --frontend"
+  echo "      <Help>"
+  echo
+	echo "  -v, --vhost"
+  echo "      <Help>"
+  echo
+	echo "  -h, --encrypt-host"
+  echo "      <Help>"
+  echo
+	echo "  -m, --encrypt-mail"
+  echo "      <Help>"
+  echo
+	echo "  -i, --client-id)"
+  echo "      <Help>"  
+  echo
+	echo "  -s, --client-secret"
+  echo "      <Help>"   
+  echo
+	echo "  -u, --backend-url"
+  echo "      <Help>"
 }
 
 # CREATE & START SERVICE
