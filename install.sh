@@ -99,7 +99,7 @@ do
 		;;
   #Organisation 
 	-o|--org)
-		ORGNAME="$2"
+		ORGNAME=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
   #Application
 	-b|--backend)
@@ -145,40 +145,59 @@ done
 ########################
 # VERIFICATION OPTIONS #
 ########################
-#Organisation
-if [ -z $ORGNAME -o ]; then
-    echo 'Empty Org'
-    exit 1
+
+### Organisation ###
+if [ -z $ORGNAME ]; then
+  echo 'Mandatory option missing [-o, --org]' | ERR=1
 fi
-#Proxy & Letsencrypt
+
+### Proxy & Letsencrypt ###
 if [ -z $VIRTUAL_HOST ]; then
-    echo 'Empty Vhost'
-    exit 1
+  VIRTUAL_HOST="$ORGNAME.myeasyrgpd.lusis.lu"
+  echo "VIRTUAL_HOST set by default : $VIRTUAL_HOST"
 fi
 if [ -z $LETSENCRYPT_HOST ]; then
-    echo 'Empty LetsHo'
-    exit 1
+  LETSENCRYPT_HOST=$VIRTUAL_HOST
+  echo "LETSENCRYPT_HOST set by default : $LETSENCRYPT_HOST"
 fi
 if [ -z $LETSENCRYPT_EMAIL ]; then
-    echo 'Empty LetsEmail'
-    exit 1
+  echo 'Mandatory option missing [--encrypt-mail]' | ERR=1
 fi
-#Client credentials (Only for Frontend)
+
+### Client credentials (Only for Frontend) ###
 if [ $frontend -eq 1 ]; then
   if [ -z $CLIENT_ID ]; then
-      echo ''
-      exit 1
+      echo 'Mandatory option missing [-i, --client-id]' | ERR=1
   fi
   if [ -z $CLIENT_SECRET ]; then
-      echo ''
-      exit 1
+      echo 'Mandatory option missing [-s, --client-secret]' | ERR=1
   fi
-  if [ -z $BACKEND_URL ]; then
-      echo ''
-      exit 1
+  if [ $backend -eq 1 ]; then
+    BACKEND_URL="https://back.$VIRTUAL_HOST"
+    echo "BACKEND_URL set by default : $BACKEND_URL"
+  else
+    BACKEND_URL="https://back.myeasyrgpd.lusis.lu"
+    echo "BACKEND_URL set by default : $BACKEND_URL"
   fi
 fi 
 
+if [ $ERR -eq 1 ]; then
+  echo "Options errors." 
+  exit 1
+fi
+
+echo "** RECAP **"
+echo "ORGNAME : $ORGNAME"
+echo "VIRTUAL_HOST : $VIRTUAL_HOST"
+echo "LETSENCRYPT_HOST : $LETSENCRYPT_HOST"
+echo "LETSENCRYPT_EMAIL : $LETSENCRYPT_EMAIL"
+if [ $frontend -eq 1 ]; then
+  echo "CLIENT_ID : $CLIENT_ID" 
+  echo "CLIENT_SECRET : $CLIENT_SECRET" 
+  echo "BACKEND_URL : $BACKEND_URL" 
+fi
+
+exit 1 
 ####################
 # PACKAGES INSTALL #
 ####################
@@ -227,7 +246,7 @@ if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
   #CREATE NETWORK
   docker network create --driver bridge $PROXY_NETWORK || true
 fi
-# INSTALL and|or START SERVICE
+# INSTALL & START SERVICE
 if ! [ install_service $PROXY_DIR $SERVICE_FILE_NAME ]; then
   echo "Fail to create service: $SERVICE_FILE_NAME"
   exit 1
@@ -237,20 +256,22 @@ fi
 # INSTALL SELECTED APP #
 ########################
 
-# BACKEND
-## TODO
-# Post install
-
+### BACKEND ###
 if [ $backend - eq 1 ]; then 
   readonly BACKDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
-  readonly BACKEND_SERVICE_NAME="back.$ORGORGNAME.MyEasyRGPD.service"
+  readonly BACKEND_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
 
-  if ! [ -f "$BACKDIR/docker-compose.yml" ]; then 
-    readonly GIT_BACK="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
-    git clone $GIT_BACK $BACKDIR
+  if ! [ -d $BACKDIR ]; then 
+    #GET SOURCES
+    git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git" $BACKDIR
+
+    #SET CREDENTIALS .env
+    sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$GIT_BACK/.env"
+    sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$GIT_BACK/.env"
+    sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$GIT_BACK/.env"
+    #COPY ./environment/backend.env -> php/src/app.env
+    cp "$PROGDIR/environment/backend.dev" "$GIT_BACK/php/src/app.env"
   fi
-
-  # Set & Move .env file
 
   if ! [ install_service $BACKDIR $BACKEND_SERVICE_NAME ]; then
     echo "Fail to create service: $BACKEND_SERVICE_NAME"
@@ -258,20 +279,24 @@ if [ $backend - eq 1 ]; then
   fi
 fi 
 
-# FRONTEND
-## TODO
-
+### FRONTEND ###
 if [ $frontend -eq 1 ]; then
   readonly FRONTDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
   readonly FRONTEND_SERVICE_NAME="front.$ORGORGNAME.MyEasyRGPD.service"
 
-  if ! [ -f "$FRONTDIR/docker-compose.yml" ]; then 
-    readonly GIT_FRONT="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
-    git clone $GIT_FRONT $FRONTDIR
-  fi
+  if ! [ -d $FRONTDIR ]; then 
+    #GET SOURCES FILES
+    git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git" $FRONTDIR
 
-  ## Set & move /environement/.env file
-  ## SET credential in docker-compose
+    #SET CREDENTIALS .env
+    sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$FRONTDIR/.env"
+    sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$FRONTDIR/.env"
+    sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$FRONTDIR/.env"
+    #SET CREDENTIALS docker-compose.yml
+    sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' "$FRONTDIR/docker-compose.yml"
+    sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' "$FRONTDIR/docker-compose.yml"
+    sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' "$FRONTDIR/docker-compose.yml"
+  fi
 
   if ! [ install_service $FRONTDIR $FRONTEND_SERVICE_NAME ]; then
     echo "Fail to create service: $FRONTEND_SERVICE_NAME"

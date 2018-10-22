@@ -44,7 +44,7 @@ do
 		;;
   #Organisation 
 	-o|--org)
-		ORGNAME="$2"
+		ORGNAME=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 		;;
   #Application
 	-b|--backend)
@@ -66,3 +66,36 @@ do
 	esac
 	shift
 done
+
+######################
+# PACKAGES UNINSTALL #
+######################
+echo "** INSTALL PACKAGES FOR $OS **"
+
+PACKDIR=""
+case $OS in
+  'ubuntu')
+    PACKDIR="$PROGDIR/uninstall/packages/ubuntu.sh"
+    ;;
+  'arch')
+    PACKDIR="$PROGDIR/uninstall/packages/archlinux.sh"
+    ;;
+  'centos')
+    PACKDIR="$PROGDIR/uninstall/packages/centos.sh"
+    ;;
+	*)
+		echo "System : $OS not supported."
+    exit 1
+		;;
+esac
+# CHECK IF FILE EXIST
+if [ ! -f $PACKDIR ]; then
+  echo "Package uninstall script not found!"
+  echo "Please Check : $PACKDIR"
+  exit 1
+fi
+# INSTALL PACKAGES
+if ! bash $PACKDIR ; then
+  echo "Package uninstall fail"
+  exit 1
+fi
