@@ -21,6 +21,8 @@ readonly ARGNUM="$#"
 #############
 # FUNCTIONS #
 #############
+
+# SCRIPT HELP MENU
 usage() {
 	echo "Script description"
 	echo
@@ -32,6 +34,8 @@ usage() {
 	echo "      This help text."
 	echo
 }
+
+# CREATE & START SERVICE
 install_service(){
   if ! [ -f /etc/systemd/system/$SERVICE_FILE_NAME ]; then
     echo "** Install Service $2 **"
@@ -55,6 +59,9 @@ install_service(){
   systemctl start $2
 }
 
+##################
+# SCRIPT OPTIONS #
+##################
 while [ "$#" -gt 0 ]
 do
 	case "$1" in
@@ -84,6 +91,16 @@ do
 	--encrypt-mail)
 		LETSENCRYPT_EMAIL="$2"
 		;;
+  #Frontend credentials
+	--client-id)
+		CLIENT_ID="$2"
+		;;
+	--client-secret)
+		CLIENT_SECRET="$2"
+		;;
+	--backend-url)
+		BACKEND_URL="$2"
+		;;
   #Others 
 	--)
 		break
@@ -98,12 +115,49 @@ do
 	shift
 done
 
+########################
+# VERIFICATION OPTIONS #
+########################
+#Organisation
+if [ -z $ORGNAME -o ]; then
+    echo 'Empty Org'
+    exit 1
+fi
+#Proxy & Letsencrypt
+if [ -z $VIRTUAL_HOST ]; then
+    echo 'Empty Vhost'
+    exit 1
+fi
+if [ -z $LETSENCRYPT_HOST ]; then
+    echo 'Empty LetsHo'
+    exit 1
+fi
+if [ -z $LETSENCRYPT_EMAIL ]; then
+    echo 'Empty LetsEmail'
+    exit 1
+fi
+#Client credentials (Only for Frontend)
+if [ $frontend -eq 1 ]; then
+  if [ -z $CLIENT_ID ]; then
+      echo ''
+      exit 1
+  fi
+  if [ -z $CLIENT_SECRET ]; then
+      echo ''
+      exit 1
+  fi
+  if [ -z $BACKEND_URL ]; then
+      echo ''
+      exit 1
+  fi
+fi 
 
-############
-# PACKAGES #
-############
+####################
+# PACKAGES INSTALL #
+####################
+echo "** INSTALL PACKAGES FOR $OS **"
+
 PACKDIR=""
-
 case $OS in
   'ubuntu')
     PACKDIR="$PROGDIR/install/packages/ubuntu.sh"
@@ -114,6 +168,10 @@ case $OS in
   'centos')
     PACKDIR="$PROGDIR/install/packages/centos.sh"
     ;;
+	*)
+		echo "System : $OS not supported."
+    exit 1
+		;;
 esac
 # CHECK IF FILE EXIST
 if [ ! -f $PACKDIR ]; then
@@ -127,9 +185,9 @@ if ! bash $PACKDIR ; then
   exit 1
 fi
 
-#########
-# PROXY #
-#########
+#################
+# PROXY INSTALL #
+#################
 readonly PROXY_GIT=https://github.com/BikerDeEspace/nginx-proxy.git
 readonly PROXY_SERVICE_NAME="MyEasyRGPD_Proxy.service"
 readonly PROXY_DIR="/srv/www/nginx-proxy"
@@ -152,9 +210,7 @@ fi
 # INSTALL SELECTED APP #
 ########################
 
-
 # BACKEND
-
 ## TODO
 # Post install
 
@@ -162,7 +218,7 @@ if [ $backend - eq 1 ]; then
   readonly APPDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
   readonly BACKEND_SERVICE_NAME="back.$ORGORGNAME.MyEasyRGPD.service"
 
-  if ! [ -d $APPDIR ]; then 
+  if ! [ -f "$APPDIR/docker-compose.yml" ]; then 
     readonly GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
     git clone $GIT_URL $APPDIR
   fi
@@ -173,19 +229,14 @@ if [ $backend - eq 1 ]; then
   fi
 fi 
 
-
 # FRONTEND
-
 ## TODO
-#readonly CLIENT_ID=
-#readonly CLIENT_SECRET=
-#readonly BACKEND_URL=
 
 if [ $frontend -eq 1 ]; then
   readonly APPDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
   readonly FRONTEND_SERVICE_NAME="front.$ORGORGNAME.MyEasyRGPD.service"
 
-  if ! [ -d $APPDIR ]; then 
+  if ! [ -f "$APPDIR/docker-compose.yml" ]; then 
     readonly GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
     git clone $GIT_URL $APPDIR
   fi

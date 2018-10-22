@@ -18,9 +18,7 @@ readonly ARGS="$@"
 # Arguments number
 readonly ARGNUM="$#"
 
-#############
-# FUNCTIONS #
-#############
+# SCRIPT HELP MENU
 usage() {
 	echo "Script description"
 	echo
@@ -32,29 +30,10 @@ usage() {
 	echo "      This help text."
 	echo
 }
-install_service(){
-  if ! [ -f /etc/systemd/system/$SERVICE_FILE_NAME ]; then
-    echo "** Install Service $2 **"
-    if ! [[ -f $PROGDIR/install/example.service ]] ; then
-        echo 'Service file not found! Please check :'
-        echo " - $PROGDIR/install/example.service"
-        exit 1
-    fi
 
-    # Create a clean copy of the service file
-    cp $PROGDIR/example.service $PROGDIR/$2
-    sed -i 's,APP_DIRECTORY,'"$1"',g' $PROGDIR/$2
-    # Move the new service file in "/etc/systemd/system/" directory
-    mv $PROGDIR/$2  /etc/systemd/system/$2
-    ## Enable the service at startup
-    systemctl enable $2
-    ## Reload the deamon
-    systemctl daemon-reload
-  fi
-  echo "** Start Service $2 **"
-  systemctl start $2
-}
-
+##################
+# SCRIPT OPTIONS #
+##################
 while [ "$#" -gt 0 ]
 do
 	case "$1" in
@@ -84,6 +63,16 @@ do
 	--encrypt-mail)
 		LETSENCRYPT_EMAIL="$2"
 		;;
+  #Frontend credentials
+	--client-id)
+		CLIENT_ID="$2"
+		;;
+	--client-secret)
+		CLIENT_SECRET="$2"
+		;;
+	--backend-url)
+		BACKEND_URL="$2"
+		;;
   #Others 
 	--)
 		break
@@ -97,16 +86,50 @@ do
 	esac
 	shift
 done
-echo "Affichage resultat : " 
-echo "" 
-echo "org name: $ORGNAME"
-echo "" 
-echo "backend: $backend"
-echo "" 
-echo "frontend: $frontend"
-echo "" 
-echo "VIRTUAL_HOST: $VIRTUAL_HOST"
-echo "" 
-echo "LETSENCRYPT_HOST: $LETSENCRYPT_HOST"
-echo ""
-echo "LETSENCRYPT_EMAIL: $LETSENCRYPT_EMAIL"
+
+########################
+# VERIFICATION OPTIONS #
+########################
+#Organisation
+if [ -z $ORGNAME -o ]; then
+    echo 'Empty Org'
+    exit 1
+fi
+#Proxy & Letsencrypt
+if [ -z $VIRTUAL_HOST ]; then
+    echo 'Empty Vhost'
+    exit 1
+fi
+if [ -z $LETSENCRYPT_HOST ]; then
+    echo 'Empty LetsHo'
+    exit 1
+fi
+if [ -z $LETSENCRYPT_EMAIL ]; then
+    echo 'Empty LetsEmail'
+    exit 1
+fi
+#Client credentials (Only for Frontend)
+if [ $frontend -eq 1 ]; then
+  if [ -z $CLIENT_ID ]; then
+      echo ''
+      exit 1
+  fi
+  if [ -z $CLIENT_SECRET ]; then
+      echo ''
+      exit 1
+  fi
+  if [ -z $BACKEND_URL ]; then
+      echo ''
+      exit 1
+  fi
+fi 
+
+echo "ORGNAME" $ORGNAME
+echo "VIRTUAL_HOST" $VIRTUAL_HOST
+echo "LETSENCRYPT_HOST" $LETSENCRYPT_HOST
+echo "LETSENCRYPT_EMAIL" $LETSENCRYPT_EMAIL
+echo "frontend" $frontend
+echo "  CLIENT_ID" $CLIENT_ID
+echo "  CLIENT_SECRET" $CLIENT_SECRET
+echo "  BACKEND_URL" $BACKEND_URL
+echo "backend" $backend
