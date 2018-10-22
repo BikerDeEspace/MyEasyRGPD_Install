@@ -242,15 +242,17 @@ fi
 # Post install
 
 if [ $backend - eq 1 ]; then 
-  readonly APPDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
+  readonly BACKDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
   readonly BACKEND_SERVICE_NAME="back.$ORGORGNAME.MyEasyRGPD.service"
 
-  if ! [ -f "$APPDIR/docker-compose.yml" ]; then 
-    readonly GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
-    git clone $GIT_URL $APPDIR
+  if ! [ -f "$BACKDIR/docker-compose.yml" ]; then 
+    readonly GIT_BACK="https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git"
+    git clone $GIT_BACK $BACKDIR
   fi
 
-  if ! [ install_service $APPDIR $BACKEND_SERVICE_NAME ]; then
+  # Set & Move .env file
+
+  if ! [ install_service $BACKDIR $BACKEND_SERVICE_NAME ]; then
     echo "Fail to create service: $BACKEND_SERVICE_NAME"
     exit 1
   fi
@@ -260,15 +262,18 @@ fi
 ## TODO
 
 if [ $frontend -eq 1 ]; then
-  readonly APPDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
+  readonly FRONTDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
   readonly FRONTEND_SERVICE_NAME="front.$ORGORGNAME.MyEasyRGPD.service"
 
-  if ! [ -f "$APPDIR/docker-compose.yml" ]; then 
-    readonly GIT_URL="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
-    git clone $GIT_URL $APPDIR
+  if ! [ -f "$FRONTDIR/docker-compose.yml" ]; then 
+    readonly GIT_FRONT="https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git"
+    git clone $GIT_FRONT $FRONTDIR
   fi
 
-  if ! [ install_service $APPDIR $FRONTEND_SERVICE_NAME ]; then
+  ## Set & move /environement/.env file
+  ## SET credential in docker-compose
+
+  if ! [ install_service $FRONTDIR $FRONTEND_SERVICE_NAME ]; then
     echo "Fail to create service: $FRONTEND_SERVICE_NAME"
     exit 1
   fi
