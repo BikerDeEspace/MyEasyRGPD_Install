@@ -112,6 +112,10 @@ do
 	-a|--application)
     APPLICATION=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
+  #Proxy LetsEncryptEmail
+  -e|--encrypt-mail)
+    LETSENCRYPT_EMAIL="$2"
+    ;;
   #Frontend credentials
 	--client-id)
 		CLIENT_ID="$2"
@@ -251,6 +255,10 @@ readonly PROXY_NETWORK="nginx-proxy"
 
 #GET SOURCES IF NOT EXIST
 if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
+
+  
+  #TODO verif port 80
+
   #GET PROXY
   git clone $PROXY_GIT $PROXY_DIR
   #CREATE NETWORK
