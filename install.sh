@@ -288,12 +288,13 @@ case $APPLICATION in
       #GET SOURCES
       git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git" $APPDIR
 
+      #COPY ./environment/backend.env -> php/src/app.env
+      cp "$PROGDIR/environment/backend.env" "$APPDIR/php/src/app.env"
+      cp "$PROGDIR/environment/backend.env" "$APPDIR/.env"
       #SET CREDENTIALS .env
       sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$APPDIR/.env"
       sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$APPDIR/.env"
       sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$APPDIR/.env"
-      #COPY ./environment/backend.env -> php/src/app.env
-      cp "$PROGDIR/environment/backend.env" "$APPDIR/php/src/app.env"
     fi
 
     if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then

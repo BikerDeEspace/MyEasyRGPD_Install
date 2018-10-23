@@ -47,12 +47,11 @@ do
 		ORGNAME=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 		;;
   #Application
-	-b|--backend)
-		backend=1
+	-a|--application)
+		APPLICATION=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 		;;
-	-f|--frontend)
-		frontend=1
-		;;
+	#Docker
+	
   #Others 
 	--)
 		break
@@ -66,6 +65,18 @@ do
 	esac
 	shift
 done
+
+######################
+# SERVICE UNINSTALL #
+######################
+
+#Todo
+
+#####################
+# APP FOLDER REMOVE #
+#####################
+
+#Todo
 
 ######################
 # PACKAGES UNINSTALL #
