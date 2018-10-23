@@ -65,10 +65,10 @@ install_service(){
       exit 1
     fi
     # Create a clean copy of the service file
-    cp $3/example.service $3/$2
-    sed -i 's,APP_DIRECTORY,'"$1"',g' $3/$2
+    cp $3/install/example.service $3/$2
+    sed -i 's,APP_DIRECTORY,'"$1"',g' $3/install/$2
     # Move the new service file in "/etc/systemd/system/" directory
-    mv $3/$2  /etc/systemd/system/$2
+    mv $3/install/$2  /etc/systemd/system/$2
     ## Enable the service at startup
     systemctl enable $2
     ## Reload the deamon
