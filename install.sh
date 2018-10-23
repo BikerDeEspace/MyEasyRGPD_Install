@@ -256,9 +256,11 @@ readonly PROXY_NETWORK="nginx-proxy"
 #GET SOURCES IF NOT EXIST
 if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
 
-  
-  #TODO verif port 80
-
+  #CHECK PORT 80
+  if $(sudo netstat -tulpn | grep LISTEN | grep -E 80) ; then
+      echo "Port 80 already used!"
+      exit 1
+  fi
   #GET PROXY
   git clone $PROXY_GIT $PROXY_DIR
   #CREATE NETWORK
