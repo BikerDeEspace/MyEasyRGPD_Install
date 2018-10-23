@@ -214,8 +214,6 @@ if [ $APPLICATION == "front" ] || [ $APPLICATION == "frontend" ]; then
   echo "  - BACKEND_URL : $BACKEND_URL" 
 fi
 
-exit 1 
-
 ####################
 # PACKAGES INSTALL #
 ####################
@@ -271,8 +269,8 @@ if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
   docker network create --driver bridge $PROXY_NETWORK || true
 fi
 # INSTALL & START SERVICE
-if ! install_service $PROXY_DIR $SERVICE_FILE_NAME $PROGDIR ; then
-  echo "Fail to create service: $SERVICE_FILE_NAME"
+if ! install_service $PROXY_DIR $PROXY_SERVICE_NAME $PROGDIR ; then
+  echo "Fail to create service: $PROXY_SERVICE_NAME"
   exit 1
 fi
 
