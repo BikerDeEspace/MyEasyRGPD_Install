@@ -58,16 +58,16 @@ usage() {
 install_service(){
   if ! [ -f /etc/systemd/system/$SERVICE_FILE_NAME ]; then
     echo "** Install Service $2 **"
-    if ! [[ -f $PROGDIR/install/example.service ]] ; then
+    if ! [ -f $3/install/example.service ] ; then
       echo 'Service file not found! Please check :'
-      echo " - $PROGDIR/install/example.service"
+      echo " - $3/install/example.service"
       exit 1
     fi
     # Create a clean copy of the service file
-    cp $PROGDIR/example.service $PROGDIR/$2
-    sed -i 's,APP_DIRECTORY,'"$1"',g' $PROGDIR/$2
+    cp $3/example.service $3/$2
+    sed -i 's,APP_DIRECTORY,'"$1"',g' $3/$2
     # Move the new service file in "/etc/systemd/system/" directory
-    mv $PROGDIR/$2  /etc/systemd/system/$2
+    mv $3/$2  /etc/systemd/system/$2
     ## Enable the service at startup
     systemctl enable $2
     ## Reload the deamon
@@ -269,7 +269,7 @@ if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
   docker network create --driver bridge $PROXY_NETWORK || true
 fi
 # INSTALL & START SERVICE
-if ! [ install_service $PROXY_DIR $SERVICE_FILE_NAME ]; then
+if ! install_service $PROXY_DIR $SERVICE_FILE_NAME $PROGDIR ; then
   echo "Fail to create service: $SERVICE_FILE_NAME"
   exit 1
 fi
@@ -296,7 +296,7 @@ case $APPLICATION in
       cp "$PROGDIR/environment/backend.dev" "$GIT_BACK/php/src/app.env"
     fi
 
-    if ! [ install_service $APPDIR $APP_SERVICE_NAME ]; then
+    if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
       echo "Fail to create service: $APP_SERVICE_NAME"
       exit 1
     fi
@@ -319,7 +319,7 @@ case $APPLICATION in
     sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' "$APPDIR/docker-compose.yml"
   fi
 
-  if ! [ install_service $APPDIR $APP_SERVICE_NAME ]; then
+  if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
     echo "Fail to create service: $APP_SERVICE_NAME"
     exit 1
   fi
