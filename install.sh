@@ -23,7 +23,6 @@ readonly ARGNUM="$#"
 #############
 
 # SCRIPT HELP MENU
-# SCRIPT HELP MENU
 usage() {
 	echo "Script description"
 	echo
@@ -37,16 +36,7 @@ usage() {
   echo "  -o, --org"
   echo "      <Help>"
 	echo
-	echo "  -b, --backend" 
-  echo "      <Help>"
-  echo
-	echo "  -f, --frontend"
-  echo "      <Help>"
-  echo
-	echo "  -v, --vhost"
-  echo "      <Help>"
-  echo
-	echo "  -h, --encrypt-host"
+	echo "  -a, --application" 
   echo "      <Help>"
   echo
 	echo "  -m, --encrypt-mail"
@@ -67,11 +57,10 @@ install_service(){
   if ! [ -f /etc/systemd/system/$SERVICE_FILE_NAME ]; then
     echo "** Install Service $2 **"
     if ! [[ -f $PROGDIR/install/example.service ]] ; then
-        echo 'Service file not found! Please check :'
-        echo " - $PROGDIR/install/example.service"
-        exit 1
+      echo 'Service file not found! Please check :'
+      echo " - $PROGDIR/install/example.service"
+      exit 1
     fi
-
     # Create a clean copy of the service file
     cp $PROGDIR/example.service $PROGDIR/$2
     sed -i 's,APP_DIRECTORY,'"$1"',g' $PROGDIR/$2
@@ -84,6 +73,24 @@ install_service(){
   fi
   echo "** Start Service $2 **"
   systemctl start $2
+}
+
+# TEST HOSTNAME & PRINT SERVICE LOGS
+wait_for_website(){
+  while [ ! $(curl --output /dev/null --silent --head http://$2) ] ; do
+      echo 'Loading application. Please Wait'
+      echo 'Logs:'
+      journalctl --unit=$1 | tail -n 2
+  
+      if $(systemctl is-failed --quiet $1); then
+          echo 'ERROR - Unknown'
+          journalctl --unit=$1 | tail -n 2
+          exit 1
+      fi
+      sleep 10
+  done
+  echo "Application available on:" 
+  echo "-> URL: http://$2"
 }
 
 ##################
@@ -102,21 +109,8 @@ do
 		ORGNAME=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
   #Application
-	-b|--backend)
-		backend=1
-		;;
-	-f|--frontend)
-		frontend=1
-		;;
-  #Proxy & Letsencrypt
-	--vhost)
-		VIRTUAL_HOST="$2"
-		;;
-	--encrypt-host)
-		LETSENCRYPT_HOST="$2"
-		;;
-	--encrypt-mail)
-		LETSENCRYPT_EMAIL="$2"
+	-a|--application)
+    APPLICATION=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
   #Frontend credentials
 	--client-id)
@@ -146,58 +140,78 @@ done
 # VERIFICATION OPTIONS #
 ########################
 
-### Organisation ###
-if [ -z $ORGNAME ]; then
-  echo 'Mandatory option missing [-o, --org]' | ERR=1
+#CHECK GENERAL MANDATORY OPTIONS
+if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
+  echo 'Mandatory option missing or empty [-a, --application]'
+  echo 'Set "backend" or "frontend"'
+  exit 1
 fi
-
-### Proxy & Letsencrypt ###
-if [ -z $VIRTUAL_HOST ]; then
-  VIRTUAL_HOST="$ORGNAME.myeasyrgpd.lusis.lu"
-  echo "VIRTUAL_HOST set by default : $VIRTUAL_HOST"
-fi
-if [ -z $LETSENCRYPT_HOST ]; then
-  LETSENCRYPT_HOST=$VIRTUAL_HOST
-  echo "LETSENCRYPT_HOST set by default : $LETSENCRYPT_HOST"
-fi
-if [ -z $LETSENCRYPT_EMAIL ]; then
-  echo 'Mandatory option missing [--encrypt-mail]' | ERR=1
-fi
-
-### Client credentials (Only for Frontend) ###
-if [ $frontend -eq 1 ]; then
-  if [ -z $CLIENT_ID ]; then
-      echo 'Mandatory option missing [-i, --client-id]' | ERR=1
-  fi
-  if [ -z $CLIENT_SECRET ]; then
-      echo 'Mandatory option missing [-s, --client-secret]' | ERR=1
-  fi
-  if [ $backend -eq 1 ]; then
-    BACKEND_URL="https://back.$VIRTUAL_HOST"
-    echo "BACKEND_URL set by default : $BACKEND_URL"
-  else
-    BACKEND_URL="https://back.myeasyrgpd.lusis.lu"
-    echo "BACKEND_URL set by default : $BACKEND_URL"
-  fi
-fi 
-
-if [ $ERR -eq 1 ]; then
-  echo "Options errors." 
+if [ -z $LETSENCRYPT_EMAIL ] || [ $LETSENCRYPT_EMAIL == "" ]; then
+  echo 'Mandatory option missing or empty [--encrypt-mail]'
   exit 1
 fi
 
-echo "** RECAP **"
-echo "ORGNAME : $ORGNAME"
-echo "VIRTUAL_HOST : $VIRTUAL_HOST"
-echo "LETSENCRYPT_HOST : $LETSENCRYPT_HOST"
-echo "LETSENCRYPT_EMAIL : $LETSENCRYPT_EMAIL"
-if [ $frontend -eq 1 ]; then
-  echo "CLIENT_ID : $CLIENT_ID" 
-  echo "CLIENT_SECRET : $CLIENT_SECRET" 
-  echo "BACKEND_URL : $BACKEND_URL" 
+case $APPLICATION in
+  'back'|'backend')
+    FRONTEND=0
+    BACKEND=1
+    #HOSTNAME
+    if [ -z $ORGNAME ]; then
+      ORGNAME="default"
+      VIRTUAL_HOST="back.myeasyrgpd.lusis.lu"
+      LETSENCRYPT_HOST="back.myeasyrgpd.lusis.lu"
+    else
+      VIRTUAL_HOST="back.$ORGNAME.myeasyrgpd.lusis.lu"
+      LETSENCRYPT_HOST="back.$ORGNAME.myeasyrgpd.lusis.lu"
+    fi
+  ;;
+  'front'|'frontend')
+    BACKEND=0
+    FRONTEND=1
+    #HOSTNAME
+    if [ -z $ORGNAME ]; then
+      ORGNAME="default"
+      VIRTUAL_HOST="front.myeasyrgpd.lusis.lu"
+      LETSENCRYPT_HOST="front.myeasyrgpd.lusis.lu"
+    else
+      VIRTUAL_HOST="$ORGNAME.myeasyrgpd.lusis.lu"
+      LETSENCRYPT_HOST="$ORGNAME.myeasyrgpd.lusis.lu"
+    fi
+
+    #CLIENT CREDENTIALS
+    if [ -z $CLIENT_ID ] || [ $CLIENT_ID == "" ]; then
+        echo 'Mandatory option missing or empty [-i, --client-id]'
+        exit 1
+    fi
+    if [ -z $CLIENT_SECRET ] || [ $CLIENT_SECRET == "" ]; then
+        echo 'Mandatory option missing or empty [-s, --client-secret]'
+        exit 1
+    fi
+    if [ -z $BACKEND_URL ] || [ $BACKEND_URL == "" ]; then
+        echo 'Mandatory option missing or empty [-u, --backend-url]'
+        exit 1
+    fi
+  ;;
+  *)
+  echo "Application : Unknown $APPLICATION"
+  exit 1
+  ;;
+esac
+
+echo "ENVIRONMENT VARIABLES RECAP"
+echo "  - ORGNAME : $ORGNAME"
+echo "  - VIRTUAL_HOST : $VIRTUAL_HOST"
+echo "  - LETSENCRYPT_HOST : $LETSENCRYPT_HOST"
+echo "  - LETSENCRYPT_EMAIL : $LETSENCRYPT_EMAIL"
+if [ $FRONTEND -eq 1 ]; then
+  echo "  FRONTEND CREDENTIALS :"
+  echo "  - CLIENT_ID : $CLIENT_ID" 
+  echo "  - CLIENT_SECRET : $CLIENT_SECRET" 
+  echo "  - BACKEND_URL : $BACKEND_URL" 
 fi
 
 exit 1 
+
 ####################
 # PACKAGES INSTALL #
 ####################
@@ -257,52 +271,60 @@ fi
 ########################
 
 ### BACKEND ###
-if [ $backend - eq 1 ]; then 
-  readonly BACKDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
-  readonly BACKEND_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
+case $APPLICATION in
+  'back'|'backend') 
+    readonly APPDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
+    readonly APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
 
-  if ! [ -d $BACKDIR ]; then 
-    #GET SOURCES
-    git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git" $BACKDIR
+    if ! [ -d $APPDIR ]; then 
+      #GET SOURCES
+      git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git" $APPDIR
 
-    #SET CREDENTIALS .env
-    sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$GIT_BACK/.env"
-    sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$GIT_BACK/.env"
-    sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$GIT_BACK/.env"
-    #COPY ./environment/backend.env -> php/src/app.env
-    cp "$PROGDIR/environment/backend.dev" "$GIT_BACK/php/src/app.env"
-  fi
+      #SET CREDENTIALS .env
+      sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$GIT_BACK/.env"
+      sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$GIT_BACK/.env"
+      sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$GIT_BACK/.env"
+      #COPY ./environment/backend.env -> php/src/app.env
+      cp "$PROGDIR/environment/backend.dev" "$GIT_BACK/php/src/app.env"
+    fi
 
-  if ! [ install_service $BACKDIR $BACKEND_SERVICE_NAME ]; then
-    echo "Fail to create service: $BACKEND_SERVICE_NAME"
-    exit 1
-  fi
-fi 
+    if ! [ install_service $APPDIR $APP_SERVICE_NAME ]; then
+      echo "Fail to create service: $APP_SERVICE_NAME"
+      exit 1
+    fi
+  ;;
+'front'|'frontend')
+  readonly APPDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
+  readonly APP_SERVICE_NAME="front.$ORGNAME.MyEasyRGPD.service"
 
-### FRONTEND ###
-if [ $frontend -eq 1 ]; then
-  readonly FRONTDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
-  readonly FRONTEND_SERVICE_NAME="front.$ORGORGNAME.MyEasyRGPD.service"
-
-  if ! [ -d $FRONTDIR ]; then 
+  if ! [ -d $APPDIR ]; then 
     #GET SOURCES FILES
-    git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git" $FRONTDIR
+    git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Frontend.git" $APPDIR
 
     #SET CREDENTIALS .env
-    sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$FRONTDIR/.env"
-    sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$FRONTDIR/.env"
-    sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$FRONTDIR/.env"
+    sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$APPDIR/.env"
+    sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$APPDIR/.env"
+    sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$APPDIR/.env"
     #SET CREDENTIALS docker-compose.yml
-    sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' "$FRONTDIR/docker-compose.yml"
-    sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' "$FRONTDIR/docker-compose.yml"
-    sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' "$FRONTDIR/docker-compose.yml"
+    sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' "$APPDIR/docker-compose.yml"
+    sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' "$APPDIR/docker-compose.yml"
+    sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' "$APPDIR/docker-compose.yml"
   fi
 
-  if ! [ install_service $FRONTDIR $FRONTEND_SERVICE_NAME ]; then
-    echo "Fail to create service: $FRONTEND_SERVICE_NAME"
+  if ! [ install_service $APPDIR $APP_SERVICE_NAME ]; then
+    echo "Fail to create service: $APP_SERVICE_NAME"
     exit 1
   fi
-fi
+  ;;
+  *)
+  echo "Application : Unknown $APPLICATION"
+  exit 1
+  ;;
+esac
 
+#################################
+# END SCRIPT - WAIT FOR WEBSITE #
+#################################
+wait_for_website $APP_SERVICE_NAME $VIRTUAL_HOST
 
 
