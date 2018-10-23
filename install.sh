@@ -153,8 +153,6 @@ fi
 
 case $APPLICATION in
   'back'|'backend')
-    FRONTEND=0
-    BACKEND=1
     #HOSTNAME
     if [ -z $ORGNAME ]; then
       ORGNAME="default"
@@ -166,8 +164,6 @@ case $APPLICATION in
     fi
   ;;
   'front'|'frontend')
-    BACKEND=0
-    FRONTEND=1
     #HOSTNAME
     if [ -z $ORGNAME ]; then
       ORGNAME="default"
@@ -203,7 +199,7 @@ echo "  - ORGNAME : $ORGNAME"
 echo "  - VIRTUAL_HOST : $VIRTUAL_HOST"
 echo "  - LETSENCRYPT_HOST : $LETSENCRYPT_HOST"
 echo "  - LETSENCRYPT_EMAIL : $LETSENCRYPT_EMAIL"
-if [ $FRONTEND -eq 1 ]; then
+if [ $APPLICATION == "front" ] || [ $APPLICATION == "frontend" ]; then
   echo "  FRONTEND CREDENTIALS :"
   echo "  - CLIENT_ID : $CLIENT_ID" 
   echo "  - CLIENT_SECRET : $CLIENT_SECRET" 
