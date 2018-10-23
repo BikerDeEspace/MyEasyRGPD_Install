@@ -37,19 +37,21 @@ usage() {
   echo "      <Help>"
 	echo
 	echo "  -a, --application" 
-  echo "      <Help>"
+  echo "      Mandatory option"
+  echo "      Values : back, backend, front, frontend"
   echo
-	echo "  -m, --encrypt-mail"
-  echo "      <Help>"
+	echo "  -e, --encrypt-mail"
+  echo "      Mandatory option"
   echo
 	echo "  -i, --client-id)"
-  echo "      <Help>"  
+  echo "      Frontend - Mandatory option" 
   echo
 	echo "  -s, --client-secret"
-  echo "      <Help>"   
+  echo "      Frontend - Mandatory option"   
   echo
 	echo "  -u, --backend-url"
-  echo "      <Help>"
+  echo "      Frontend - Mandatory option"
+  echo "      Default : http://back.myeasyrgpd.lusis.lu"
 }
 
 # CREATE & START SERVICE
@@ -188,8 +190,8 @@ case $APPLICATION in
         exit 1
     fi
     if [ -z $BACKEND_URL ] || [ $BACKEND_URL == "" ]; then
-        echo 'Mandatory option missing or empty [-u, --backend-url]'
-        exit 1
+        BACKEND_URL="http://back.myeasyrgpd.lusis.lu"
+        echo "BACKEND_URL set by default : $BACKEND_URL"
     fi
   ;;
   *)
