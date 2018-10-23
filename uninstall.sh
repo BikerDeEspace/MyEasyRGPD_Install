@@ -79,11 +79,11 @@ do
 		;;
   #Organisation 
 	-o|--org)
-		ORGNAME=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+		ORGNAME=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
   #Application
 	-a|--application)
-		APPLICATION=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+		APPLICATION=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
 	#Docker
 	-v|--volume)
@@ -112,7 +112,12 @@ done
 if [ -z $ORGNAME ] || [ $ORGNAME == "" ]; then
 		echo 'Mandatory option missing or empty [-o, --org]'
 		exit 1
+elif [ $ORGNAME = "default" ]; then
+
 fi
+
+
+
 if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
 		echo 'Mandatory option missing or empty [-a, --application]'
 		exit 1
@@ -146,14 +151,14 @@ fi
 #  REMOVE DOCKER ELT #
 ######################
 # VOLUMES
-if [ -z $RM_VOLUMES ] && [ $RM_VOLUMES -eq 1 ]; then
+if [ -z $RM_VOLUMES ] || [ $RM_VOLUMES -eq 1 ]; then
 	echo "** Remove volumes **"
-	docker volume rm $(docker volume ls | grep \'$ORGNAME\')
+	docker volume rm $(docker volume ls | grep $ORGNAME)
 fi
 # IMAGES
-if [ -z $RM_IMAGES ] && [ $RM_IMAGES -eq 1 ]; then
+if [ -z $RM_IMAGES ] || [ $RM_IMAGES -eq 1 ]; then
 	echo "** Remove images **"
-	docker image rm -f $(docker image ls | grep \'$ORGNAME\')
+	docker image rm -f $(docker image ls | grep $ORGNAME)
 fi
 
 #####################
