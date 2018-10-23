@@ -293,7 +293,7 @@ case $APPLICATION in
       sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$APPDIR/.env"
       sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$APPDIR/.env"
       #COPY ./environment/backend.env -> php/src/app.env
-      cp "$PROGDIR/environment/backend.dev" "$APPDIR/php/src/app.env"
+      cp "$PROGDIR/environment/backend.env" "$APPDIR/php/src/app.env"
     fi
 
     if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
