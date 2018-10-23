@@ -56,7 +56,8 @@ usage() {
 
 # CREATE & START SERVICE
 install_service(){
-  if ! [ -f /etc/systemd/system/$SERVICE_FILE_NAME ]; then
+  #1 APPDIR - #2 SERVICENAME - #3 PROGDIR
+  if ! [ -f /etc/systemd/system/$2 ]; then
     echo "** Install Service $2 **"
     if ! [ -f $3/install/example.service ] ; then
       echo 'Service file not found! Please check :'
@@ -79,6 +80,7 @@ install_service(){
 
 # TEST HOSTNAME & PRINT SERVICE LOGS
 wait_for_website(){
+  #1 SERVICENAME - #2 ADDRESS
   while [ ! $(curl --output /dev/null --silent --head http://$2) ] ; do
       echo 'Loading application. Please Wait'
       echo 'Logs:'
