@@ -51,6 +51,11 @@ usage() {
 # UNISTALL SERVICE
 uninstall_service(){
 	echo "** Remove Service $1 **"
+	#CHECK SERVICE FILE
+	if ! [ -f /etc/systemd/system/$1 ]; then
+		echo "Service file not found! $1"
+		exit 1
+	fi
 	# STOP SERVICE IF ACTIVE
 	if $(systemctl is-active --quiet $1); then 
 			systemctl stop $1
@@ -104,28 +109,61 @@ done
 #################
 # VERIFICATIONS #
 #################
+if [ -z $ORGNAME ] || [ $ORGNAME == "" ]; then
+		echo 'Mandatory option missing or empty [-o, --org]'
+		exit 1
+fi
+if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
+		echo 'Mandatory option missing or empty [-a, --application]'
+		exit 1
+fi
 
-#TODO
+# SET VAR
+case $APPLICATION in
+  'back'|'backend') 
+		APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
+		APP_DIR="/usr/share/MyeasyRGPD/backend/$ORGNAME"
+	;;
+  'front'|'frontend')
+		APP_SERVICE_NAME="front.$ORGNAME.MyEasyRGPD.service"
+		APP_DIR="/usr/share/MyeasyRGPD/backend/$ORGNAME"
+	;;	
+  *)
+  echo "Application : Unknown $APPLICATION"
+  exit 1
+  ;;
+esac
 
-######################
-# SERVICE UNINSTALL #
-######################
-
-#Todo
+##############################
+# SERVICE UNINSTALL & REMOVE #
+##############################
+if ! uninstall_service $APP_SERVICE_NAME ; then
+	echo "Uninstall service failed : $APP_SERVICE_NAME"
+	exit 1
+fi
 
 ######################
 #  REMOVE DOCKER ELT #
 ######################
 # VOLUMES
-
+if [ -z $RM_VOLUMES ] && [ $RM_VOLUMES -eq 1 ]; then
+	echo "** Remove volumes **"
+	docker volume rm $(docker volume ls | grep \'$ORGNAME\')
+fi
 # IMAGES
-
+if [ -z $RM_IMAGES ] && [ $RM_IMAGES -eq 1 ]; then
+	echo "** Remove images **"
+	docker image rm -f $(docker image ls | grep \'$ORGNAME\')
+fi
 
 #####################
 # APP FOLDER REMOVE #
 #####################
+rm -rf $APP_DIR
 
-#Todo
+
+exit 0
+#if last app
 
 ################
 # REMOVE PROXY #
@@ -137,7 +175,6 @@ done
 # PACKAGES UNINSTALL #
 ######################
 echo "** INSTALL PACKAGES FOR $OS **"
-
 PACKDIR=""
 case $OS in
   'ubuntu')
@@ -165,3 +202,4 @@ if ! bash $PACKDIR ; then
   echo "Package uninstall fail"
   exit 1
 fi
+
