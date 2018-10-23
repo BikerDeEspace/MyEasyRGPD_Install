@@ -18,6 +18,10 @@ readonly ARGS="$@"
 # Arguments number
 readonly ARGNUM="$#"
 
+#############
+# FUNCTIONS #
+#############
+
 # SCRIPT HELP MENU
 usage() {
 	echo "Script description"
@@ -29,6 +33,32 @@ usage() {
 	echo "  -h, --help"
 	echo "      This help text."
 	echo
+  echo "  -o, --org"
+  echo "      Mandatory option"
+	echo
+	echo "  -a, --application" 
+  echo "      Mandatory option"
+  echo "      Values : back, backend, front, frontend"
+  echo
+	echo " 	-v, --volume"
+	echo "			Optional - Remove Docker volumes for the app"
+	echo 
+	echo " 	-i, --image"
+	echo "			Optional - Remove Docker images for the app"
+	echo
+}
+
+# UNISTALL SERVICE
+uninstall_service(){
+	echo "** Remove Service $1 **"
+	# STOP SERVICE IF ACTIVE
+	if $(systemctl is-active --quiet $1); then 
+			systemctl stop $1
+	fi
+	## DISABLE SERVICE AT STARTUP
+	systemctl disable $1
+	## REMOVE SERVICE
+	rm /etc/systemd/system/$1
 }
 
 ##################
@@ -51,7 +81,12 @@ do
 		APPLICATION=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 		;;
 	#Docker
-	
+	-v|--volume)
+		RM_VOLUMES=1
+		;;
+	-i|--image)
+		RM_IMAGES=1
+		;;
   #Others 
 	--)
 		break
@@ -66,15 +101,35 @@ do
 	shift
 done
 
+#################
+# VERIFICATIONS #
+#################
+
+#TODO
+
 ######################
 # SERVICE UNINSTALL #
 ######################
 
 #Todo
 
+######################
+#  REMOVE DOCKER ELT #
+######################
+# VOLUMES
+
+# IMAGES
+
+
 #####################
 # APP FOLDER REMOVE #
 #####################
+
+#Todo
+
+################
+# REMOVE PROXY #
+################
 
 #Todo
 

@@ -52,6 +52,7 @@ usage() {
 	echo "  -u, --backend-url"
   echo "      Frontend - Mandatory option"
   echo "      Default : http://back.myeasyrgpd.lusis.lu"
+  echo
 }
 
 # CREATE & START SERVICE
@@ -81,7 +82,7 @@ install_service(){
 # TEST HOSTNAME & PRINT SERVICE LOGS
 wait_for_website(){
   #1 SERVICENAME - #2 ADDRESS
-  while [ ! $(curl --output /dev/null --silent --head http://$2) ] ; do
+    while ! ping -c1 $2 &>/dev/null ; do
       echo 'Loading application. Please Wait'
       echo 'Logs:'
       journalctl --unit=$1 | tail -n 2
