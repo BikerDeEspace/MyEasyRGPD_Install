@@ -119,13 +119,13 @@ do
     LETSENCRYPT_EMAIL="$2"
     ;;
   #Frontend credentials
-	--client-id)
+	-i|--client-id)
 		CLIENT_ID="$2"
 		;;
-	--client-secret)
+	-s|--client-secret)
 		CLIENT_SECRET="$2"
 		;;
-	--backend-url)
+	-u|--backend-url)
 		BACKEND_URL="$2"
 		;;
   #Others 
@@ -153,7 +153,7 @@ if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
   exit 1
 fi
 if [ -z $LETSENCRYPT_EMAIL ] || [ $LETSENCRYPT_EMAIL == "" ]; then
-  echo 'Mandatory option missing or empty [--encrypt-mail]'
+  echo 'Mandatory option missing or empty [-e, --encrypt-mail]'
   exit 1
 fi
 
