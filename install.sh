@@ -82,17 +82,17 @@ install_service(){
 # TEST HOSTNAME & PRINT SERVICE LOGS
 wait_for_website(){
   #1 SERVICENAME - #2 ADDRESS
-    while ! ping -c1 $2 &>/dev/null ; do
-      echo 'Loading application. Please Wait'
-      echo 'Logs:'
-      journalctl --unit=$1 | tail -n 2
-  
-      if $(systemctl is-failed --quiet $1); then
-          echo 'ERROR - Unknown'
-          journalctl --unit=$1 | tail -n 2
-          exit 1
-      fi
-      sleep 10
+  until $(curl --output /dev/null --silent --head --fail $2); do
+    echo 'Loading application. Please Wait'
+    echo 'Logs:'
+    journalctl --unit=$1 | tail -n 2
+
+    if $(systemctl is-failed --quiet $1); then
+        echo 'ERROR - Unknown'
+        journalctl --unit=$1 | tail -n 2
+        exit 1
+    fi
+    sleep 10
   done
   echo "Application available on:" 
   echo "-> URL: http://$2"

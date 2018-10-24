@@ -127,14 +127,15 @@ if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
 fi
 
 # SET VAR
+readonly $MAIN_DIR="/usr/share/MyEasyRGPD"
 case $APPLICATION in
   'back'|'backend') 
-		APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
-		APP_DIR="/usr/share/MyeasyRGPD/backend/$ORGNAME"
+		readonly APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
+		readonly APP_DIR="$MAIN_DIR/backend/$ORGNAME"
 	;;
   'front'|'frontend')
-		APP_SERVICE_NAME="front.$ORGNAME.MyEasyRGPD.service"
-		APP_DIR="/usr/share/MyeasyRGPD/backend/$ORGNAME"
+		readonly APP_SERVICE_NAME="front.$ORGNAME.MyEasyRGPD.service"
+		readonly APP_DIR="$MAIN_DIR/frontend/$ORGNAME"
 	;;	
   *)
   echo "Application : Unknown $APPLICATION"
@@ -167,11 +168,10 @@ fi
 #####################
 # APP FOLDER REMOVE #
 #####################
-rm -rf $APP_DIR
+echo "** Remove folder $APP_DIR **"
+rm -rf "$APP_DIR"
 
-
-exit 0
-#if last app
+exit 1
 
 ################
 # REMOVE PROXY #
