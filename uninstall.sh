@@ -216,6 +216,18 @@ if [ ! "$(ls -A $MAIN_DIR/backend)" ] && [ ! "$(ls -A $MAIN_DIR/frontend)" ]; th
 
 	rm -rf $PROXY_DIR
 
+	#REMOVE CONTAINER / VOLUME / IMAGE
+	docker container rm $(docker container ls -aq)
+	if [ $RM_VOLUMES -eq 1 ]; then
+		echo "** Remove volumes **"
+		docker volume rm $(docker volume ls | grep $ORGNAME)
+	fi
+	if [ $RM_IMAGES -eq 1 ]; then
+		echo "** Remove images **"
+		docker image rm $(docker image ls -q)
+	fi
+	docker network rm $(docker network ls -q)
+
 	######################
 	# PACKAGES UNINSTALL #
 	######################
