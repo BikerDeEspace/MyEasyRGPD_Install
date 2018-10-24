@@ -143,6 +143,19 @@ case $APPLICATION in
   ;;
 esac
 
+echo "ENVIRONMENT VARIABLES RECAP"
+echo "  - HOST SYSTEM : $OS"
+echo "  - APP DIR : $APP_DIR"
+echo "  - APP SERVICE NAME : $APP_SERVICE_NAME"
+
+#ASK FOR CONFIRM BEFORE CONTINUE
+read -r -p "Is this correct? [y/N] " response
+response=${response,,}
+if ! [[ "$response" =~ ^(yes|y)$ ]]; then
+  exit 1
+fi
+
+
 ##############################
 # SERVICE UNINSTALL & REMOVE #
 ##############################

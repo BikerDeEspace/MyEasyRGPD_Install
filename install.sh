@@ -204,15 +204,23 @@ case $APPLICATION in
 esac
 
 echo "ENVIRONMENT VARIABLES RECAP"
+echo "  - HOST SYSTEM : $OS"
 echo "  - ORGNAME : $ORGNAME"
-echo "  - VIRTUAL_HOST : $VIRTUAL_HOST"
-echo "  - LETSENCRYPT_HOST : $LETSENCRYPT_HOST"
-echo "  - LETSENCRYPT_EMAIL : $LETSENCRYPT_EMAIL"
+echo "  - VIRTUAL HOST : $VIRTUAL_HOST"
+echo "  - LETSENCRYPT HOST : $LETSENCRYPT_HOST"
+echo "  - LETSENCRYPT EMAIL : $LETSENCRYPT_EMAIL"
 if [ $APPLICATION == "front" ] || [ $APPLICATION == "frontend" ]; then
   echo "  FRONTEND CREDENTIALS :"
-  echo "  - CLIENT_ID : $CLIENT_ID" 
-  echo "  - CLIENT_SECRET : $CLIENT_SECRET" 
-  echo "  - BACKEND_URL : $BACKEND_URL" 
+  echo "  - CLIENT ID : $CLIENT_ID" 
+  echo "  - CLIENT SECRET : $CLIENT_SECRET" 
+  echo "  - BACKEND URL : $BACKEND_URL" 
+fi
+
+#ASK FOR CONFIRM BEFORE CONTINUE
+read -r -p "Is this correct? [y/N] " response
+response=${response,,}
+if ! [[ "$response" =~ ^(yes|y)$ ]]; then
+  exit 1
 fi
 
 ####################
