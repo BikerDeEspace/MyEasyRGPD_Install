@@ -171,43 +171,65 @@ fi
 echo "** Remove folder $APP_DIR **"
 rm -rf "$APP_DIR"
 
-exit 1
+##########################
+# NO OTHER APP INSTALLED #
+##########################
+if [ ! "$(ls -A $MAIN_DIR/backend)" ] && [ ! "$(ls -A $MAIN_DIR/frontend)" ]; then
+  echo "No other MyEasyRGPD ..."
+	echo "	- Removing Proxy & Package"
+	##########################
+	# MAIN APP FOLDER REMOVE #
+	##########################
+	rm -rf $MAIN_DIR
 
-################
-# REMOVE PROXY #
-################
+	################
+	# REMOVE PROXY #
+	################
+	echo "** UNINSTALL PROXY **"
 
-#Todo
+	readonly PROXY_SERVICE_NAME="MyEasyRGPD_Proxy.service"
+	readonly PROXY_DIR="/srv/www/nginx-proxy"
 
-######################
-# PACKAGES UNINSTALL #
-######################
-echo "** INSTALL PACKAGES FOR $OS **"
-PACKDIR=""
-case $OS in
-  'ubuntu')
-    PACKDIR="$PROGDIR/uninstall/packages/ubuntu.sh"
-    ;;
-  'arch')
-    PACKDIR="$PROGDIR/uninstall/packages/archlinux.sh"
-    ;;
-  'centos')
-    PACKDIR="$PROGDIR/uninstall/packages/centos.sh"
-    ;;
-	*)
-		echo "System : $OS not supported."
-    exit 1
-		;;
-esac
-# CHECK IF FILE EXIST
-if [ ! -f $PACKDIR ]; then
-  echo "Package uninstall script not found!"
-  echo "Please Check : $PACKDIR"
-  exit 1
+	if ! uninstall_service $PROXY_SERVICE_NAME ; then
+		echo "Uninstall service failed : $PROXY_SERVICE_NAME"
+		exit 1
+	fi
+
+	rm -rf $PROXY_DIR
+
+	######################
+	# PACKAGES UNINSTALL #
+	######################
+	echo "** UNINSTALL PACKAGES FOR $OS **"
+	PACKDIR=""
+	case $OS in
+		'ubuntu')
+			PACKDIR="$PROGDIR/uninstall/packages/ubuntu.sh"
+			;;
+		'arch')
+			PACKDIR="$PROGDIR/uninstall/packages/archlinux.sh"
+			;;
+		'centos')
+			PACKDIR="$PROGDIR/uninstall/packages/centos.sh"
+			;;
+		*)
+			echo "System : $OS not supported."
+			exit 1
+			;;
+	esac
+
+	if [ ! -f $PACKDIR ]; then
+		echo "Package uninstall script not found!"
+		echo "Please Check : $PACKDIR"
+		exit 1
+	fi
+
+	if ! bash $PACKDIR ; then
+		echo "Package uninstall fail"
+		exit 1
+	fi
 fi
-# INSTALL PACKAGES
-if ! bash $PACKDIR ; then
-  echo "Package uninstall fail"
-  exit 1
-fi
 
+#######################
+# END UNISTALL SCRIPT #
+#######################
