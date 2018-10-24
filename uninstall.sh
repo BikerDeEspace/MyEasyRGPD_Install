@@ -18,6 +18,12 @@ readonly ARGS="$@"
 # Arguments number
 readonly ARGNUM="$#"
 
+#INIT VAR
+RM_VOLUMES=0
+RM_IMAGES=0
+ORGNAME=""
+APPLICATION=""
+
 #############
 # FUNCTIONS #
 #############
@@ -33,13 +39,13 @@ usage() {
 	echo "  -h, --help"
 	echo "      This help text."
 	echo
-  echo "  -o, --org"
-  echo "      Mandatory option"
+	echo "  -o, --org"
+	echo "      Mandatory option"
 	echo
 	echo "  -a, --application" 
-  echo "      Mandatory option"
-  echo "      Values : back, backend, front, frontend"
-  echo
+	echo "      Mandatory option"
+	echo "      Values : back, backend, front, frontend"
+	echo
 	echo " 	-v, --volume"
 	echo "			Optional - Remove Docker volumes for the app"
 	echo 
@@ -109,7 +115,7 @@ done
 #################
 # VERIFICATIONS #
 #################
-if [ -z $ORGNAME ] || [ $ORGNAME == "" ]; then
+if [ $ORGNAME == "" ]; then
 		echo 'Mandatory option missing or empty [-o, --org]'
 		exit 1
 elif [ $ORGNAME = "default" ]; then
@@ -121,7 +127,7 @@ elif [ $ORGNAME = "default" ]; then
 	fi
 fi
 
-if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
+if [ $APPLICATION == "" ]; then
 		echo 'Mandatory option missing or empty [-a, --application]'
 		exit 1
 fi
@@ -168,12 +174,12 @@ fi
 #  REMOVE DOCKER ELT #
 ######################
 # VOLUMES
-if [ -z $RM_VOLUMES ] || [ $RM_VOLUMES -eq 1 ]; then
+if [ $RM_VOLUMES -eq 1 ]; then
 	echo "** Remove volumes **"
 	docker volume rm $(docker volume ls | grep $ORGNAME)
 fi
 # IMAGES
-if [ -z $RM_IMAGES ] || [ $RM_IMAGES -eq 1 ]; then
+if [ $RM_IMAGES -eq 1 ]; then
 	echo "** Remove images **"
 	docker image rm -f $(docker image ls | grep $ORGNAME)
 fi

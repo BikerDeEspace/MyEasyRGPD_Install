@@ -18,6 +18,14 @@ readonly ARGS="$@"
 # Arguments number
 readonly ARGNUM="$#"
 
+#INIT VAR
+ORGNAME=""
+APPLICATION=""
+LETSENCRYPT_EMAIL=""
+CLIENT_ID=""
+CLIENT_SECRET=""
+BACKEND_URL=""
+
 #############
 # FUNCTIONS #
 #############
@@ -150,12 +158,12 @@ done
 ########################
 
 #CHECK GENERAL MANDATORY OPTIONS
-if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
+if [ $APPLICATION == "" ]; then
   echo 'Mandatory option missing or empty [-a, --application]'
   echo 'Set "backend" or "frontend"'
   exit 1
 fi
-if [ -z $LETSENCRYPT_EMAIL ] || [ $LETSENCRYPT_EMAIL == "" ]; then
+if [ $LETSENCRYPT_EMAIL == "" ]; then
   echo 'Mandatory option missing or empty [-e, --encrypt-mail]'
   exit 1
 fi
@@ -184,15 +192,15 @@ case $APPLICATION in
     fi
 
     #CLIENT CREDENTIALS
-    if [ -z $CLIENT_ID ] || [ $CLIENT_ID == "" ]; then
+    if [ $CLIENT_ID == "" ]; then
         echo 'Mandatory option missing or empty [-i, --client-id]'
         exit 1
     fi
-    if [ -z $CLIENT_SECRET ] || [ $CLIENT_SECRET == "" ]; then
+    if [ $CLIENT_SECRET == "" ]; then
         echo 'Mandatory option missing or empty [-s, --client-secret]'
         exit 1
     fi
-    if [ -z $BACKEND_URL ] || [ $BACKEND_URL == "" ]; then
+    if [ $BACKEND_URL == "" ]; then
         BACKEND_URL="http://back.myeasyrgpd.lusis.lu"
         echo "BACKEND_URL set by default : $BACKEND_URL"
     fi
