@@ -115,10 +115,10 @@ done
 #################
 # VERIFICATIONS #
 #################
-if [ $ORGNAME == "" ]; then
+if [ "$ORGNAME" = "" ]; then
 		echo 'Mandatory option missing or empty [-o, --org]'
 		exit 1
-elif [ $ORGNAME = "default" ]; then
+elif [ "$ORGNAME" = "default" ]; then
 	#ASK FOR CONFIRM
 	read -r -p "Remove the default app? [y/N] " response
 	response=${response,,}
@@ -127,7 +127,7 @@ elif [ $ORGNAME = "default" ]; then
 	fi
 fi
 
-if [ $APPLICATION == "" ]; then
+if [ "$APPLICATION" = "" ]; then
 		echo 'Mandatory option missing or empty [-a, --application]'
 		exit 1
 fi

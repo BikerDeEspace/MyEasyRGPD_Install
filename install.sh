@@ -158,12 +158,12 @@ done
 ########################
 
 #CHECK GENERAL MANDATORY OPTIONS
-if [ $APPLICATION == "" ]; then
+if [ "$APPLICATION" = "" ]; then
   echo 'Mandatory option missing or empty [-a, --application]'
   echo 'Set "backend" or "frontend"'
   exit 1
 fi
-if [ $LETSENCRYPT_EMAIL == "" ]; then
+if [ "$LETSENCRYPT_EMAIL" = "" ]; then
   echo 'Mandatory option missing or empty [-e, --encrypt-mail]'
   exit 1
 fi
@@ -171,7 +171,7 @@ fi
 case $APPLICATION in
   'back'|'backend')
     #HOSTNAME
-    if [ -z $ORGNAME ]; then
+    if [ "$ORGNAME" = "" ]; then
       ORGNAME="default"
       VIRTUAL_HOST="back.myeasyrgpd.lusis.lu"
       LETSENCRYPT_HOST="back.myeasyrgpd.lusis.lu"
@@ -182,7 +182,7 @@ case $APPLICATION in
   ;;
   'front'|'frontend')
     #HOSTNAME
-    if [ -z $ORGNAME ]; then
+    if [ "$ORGNAME" = "" ]; then
       ORGNAME="default"
       VIRTUAL_HOST="front.myeasyrgpd.lusis.lu"
       LETSENCRYPT_HOST="front.myeasyrgpd.lusis.lu"
@@ -192,15 +192,15 @@ case $APPLICATION in
     fi
 
     #CLIENT CREDENTIALS
-    if [ $CLIENT_ID == "" ]; then
+    if [ "$CLIENT_ID" = "" ]; then
         echo 'Mandatory option missing or empty [-i, --client-id]'
         exit 1
     fi
-    if [ $CLIENT_SECRET == "" ]; then
+    if [ "$CLIENT_SECRET" = "" ]; then
         echo 'Mandatory option missing or empty [-s, --client-secret]'
         exit 1
     fi
-    if [ $BACKEND_URL == "" ]; then
+    if [ "$BACKEND_URL" = "" ]; then
         BACKEND_URL="http://back.myeasyrgpd.lusis.lu"
         echo "BACKEND_URL set by default : $BACKEND_URL"
     fi
@@ -358,6 +358,6 @@ wait_for_website $APP_SERVICE_NAME $VIRTUAL_HOST
 
 
 #BACKEND POST INSTALL
-if [ $APPLICATION == "back" ] || [ $APPLICATION == "backend" ]; then
+if [ "$APPLICATION" = "back" ] || [ "$APPLICATION" = "backend" ]; then
   /usr/local/bin/docker-compose -f $APPDIR/docker-compose.yml exec backend-php ./post_install_scripts/post_install.sh
 fi
