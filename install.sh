@@ -66,7 +66,7 @@ install_service(){
       exit 1
     fi
     # Create a clean copy of the service file
-    cp $3/install/example.service $3/install/$2
+    cp -f $3/install/example.service $3/install/$2
     sed -i 's,APP_DIRECTORY,'"$1"',g' $3/install/$2
     # Move the new service file in "/etc/systemd/system/" directory
     mv $3/install/$2  /etc/systemd/system/$2
@@ -298,14 +298,14 @@ case $APPLICATION in
       git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git" $APPDIR
 
       #CREATE TMP .env FILE
-      cp "$PROGDIR/environment/backend.env" "$PROGDIR/environment/tmp.env"
+      cp -f "$PROGDIR/environment/backend.env" "$PROGDIR/environment/tmp.env"
       #SET CREDENTIALS .env
       sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$PROGDIR/environment/tmp.env"
       #COPY ./environment/backend.env -> php/src/app.env
-      cp "$PROGDIR/environment/tmp.env" "$APPDIR/php/src/app.env"
-      cp "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
+      cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/php/src/app.env"
+      cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
       rm "$PROGDIR/environment/tmp.env"
     fi
 
