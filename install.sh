@@ -304,7 +304,7 @@ case $APPLICATION in
       sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$PROGDIR/environment/tmp.env"
       #COPY ./environment/backend.env -> php/src/app.env
-      cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/php/src/app.env"
+      cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/php/app.env"
       cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
       rm "$PROGDIR/environment/tmp.env"
     fi
