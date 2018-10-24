@@ -346,5 +346,7 @@ esac
 wait_for_website $APP_SERVICE_NAME $VIRTUAL_HOST
 
 
-
-#TODO BACKEND POST INSTALL
+#BACKEND POST INSTALL
+if [ $APPLICATION == "back" ] || [ $APPLICATION == "backend" ]; then
+  /usr/local/bin/docker-compose -f $APPDIR/docker-compose.yml exec backend-php ./post_install_scripts/post_install.sh
+fi
