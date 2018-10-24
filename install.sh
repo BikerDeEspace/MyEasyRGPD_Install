@@ -297,13 +297,16 @@ case $APPLICATION in
       #GET SOURCES
       git clone "https://github.com/BikerDeEspace/MyEasyRGPD_Backend.git" $APPDIR
 
-      #COPY ./environment/backend.env -> php/src/app.env
-      cp "$PROGDIR/environment/backend.env" "$APPDIR/php/src/app.env"
-      cp "$PROGDIR/environment/backend.env" "$APPDIR/.env"
+      #CREATE TMP .env FILE
+      cp "$PROGDIR/environment/backend.env" "$PROGDIR/environment/tmp.env"
       #SET CREDENTIALS .env
-      sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$APPDIR/.env"
-      sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$APPDIR/.env"
-      sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$APPDIR/.env"
+      sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$PROGDIR/environment/tmp.env"
+      sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$PROGDIR/environment/tmp.env"
+      sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$PROGDIR/environment/tmp.env"
+      #COPY ./environment/backend.env -> php/src/app.env
+      cp "$PROGDIR/environment/tmp.env" "$APPDIR/php/src/app.env"
+      cp "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
+      rm "$PROGDIR/environment/tmp.env"
     fi
 
     if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then

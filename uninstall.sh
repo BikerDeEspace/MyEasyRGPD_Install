@@ -127,7 +127,7 @@ if [ -z $APPLICATION ] || [ $APPLICATION == "" ]; then
 fi
 
 # SET VAR
-readonly $MAIN_DIR="/usr/share/MyEasyRGPD"
+readonly MAIN_DIR="/usr/share/MyEasyRGPD"
 case $APPLICATION in
   'back'|'backend') 
 		readonly APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
