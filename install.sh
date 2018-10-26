@@ -123,6 +123,7 @@ do
 		;;
   -l|--logo)
     LOGO_FILE="$2"
+    ;;
   #Application
 	-a|--application)
     APPLICATION=$(echo "$2" | tr '[:upper:]' '[:lower:]')
