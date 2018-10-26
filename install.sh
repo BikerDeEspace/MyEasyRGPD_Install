@@ -278,6 +278,9 @@ if ! bash $PACKDIR ; then
   exit 1
 fi
 
+#START DOCKER
+systemctl start docker.service
+
 #PROXY INSTALL
 readonly PROXY_GIT=https://github.com/BikerDeEspace/nginx-proxy.git
 readonly PROXY_SERVICE_NAME="MyEasyRGPD_Proxy.service"
@@ -295,6 +298,7 @@ if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
   #GET PROXY
   git clone $PROXY_GIT $PROXY_DIR
   #CREATE NETWORK
+
   docker network create --driver bridge $PROXY_NETWORK || true
 fi
 # INSTALL & START SERVICE
