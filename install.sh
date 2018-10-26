@@ -20,6 +20,8 @@ readonly ARGNUM="$#"
 
 #INIT VAR
 ORGNAME=""
+LOGO_FILE=""
+LOGO=0
 APPLICATION=""
 LETSENCRYPT_EMAIL=""
 CLIENT_ID=""
@@ -42,6 +44,9 @@ usage() {
 	echo "      This help text."
 	echo
   echo "  -o, --org"
+  echo "      <Help>"
+	echo
+  echo "  -l, --logo"
   echo "      <Help>"
 	echo
 	echo "  -a, --application" 
@@ -121,6 +126,8 @@ do
 	-o|--org)
 		ORGNAME=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 		;;
+  -l|--logo)
+    LOGO_FILE="$2"
   #Application
 	-a|--application)
     APPLICATION=$(echo "$2" | tr '[:upper:]' '[:lower:]')
@@ -157,7 +164,7 @@ done
 # VERIFICATION OPTIONS #
 ########################
 
-#CHECK GENERAL MANDATORY OPTIONS
+#CHECK GENERAL OPTIONS
 if [ "$APPLICATION" = "" ]; then
   echo 'Mandatory option missing or empty [-a, --application]'
   echo 'Set "backend" or "frontend"'
@@ -166,6 +173,20 @@ fi
 if [ "$LETSENCRYPT_EMAIL" = "" ]; then
   echo 'Mandatory option missing or empty [-e, --encrypt-mail]'
   exit 1
+fi
+
+#LOGO
+if ! [ "$LOGO_FILE" = "" ]; then
+  if  ! [ -f $LOGO_FILE ]; then
+    echo 'Logo : Incorrect file path'
+    echo "Please check : $LOGO_FILE"
+    exit 1
+  elif ! [[ $LOGO_FILE == *.png ]]; then
+    echo '.png file expected'
+    exit 1
+  else
+    LOGO=1
+  fi
 fi
 
 case $APPLICATION in
@@ -211,6 +232,8 @@ case $APPLICATION in
   ;;
 esac
 
+#ENV RECAP
+echo 
 echo "ENVIRONMENT VARIABLES RECAP"
 echo "  - HOST SYSTEM : $OS"
 echo "  - ORGNAME : $ORGNAME"
@@ -311,15 +334,14 @@ case $APPLICATION in
       sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$PROGDIR/environment/tmp.env"
-      #COPY ./environment/backend.env -> php/src/app.env
+      #COPY ./environment/tmp.env -> php/src/app.env & .env
       cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/php/app.env"
-      cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
-      rm "$PROGDIR/environment/tmp.env"
-    fi
-
-    if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
-      echo "Fail to create service: $APP_SERVICE_NAME"
-      exit 1
+      mv -f "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
+      #SET LOGO
+      if [ $LOGO -eq 1 ]; then
+        cp $LOGO_FILE "$APPDIR/php/src/public/assets/img/pia-lab.png"
+        cp $LOGO_FILE "$APPDIR/php/src/public/assets/img/pia-lab-small.png"
+      fi
     fi
   ;;
 'front'|'frontend')
@@ -334,15 +356,15 @@ case $APPLICATION in
     sed -i 's,<VIRTUAL_HOST>,'"$VIRTUAL_HOST"',g' "$APPDIR/.env"
     sed -i 's,<LETSENCRYPT_HOST>,'"$LETSENCRYPT_HOST"',g' "$APPDIR/.env"
     sed -i 's,<LETSENCRYPT_EMAIL>,'"$LETSENCRYPT_EMAIL"',g' "$APPDIR/.env"
-    #SET CREDENTIALS docker-compose.yml
+    #SET CLIENT CREDENTIALS docker-compose.yml
     sed -i 's,<CLIENT_ID>,'"$CLIENT_ID"',g' "$APPDIR/docker-compose.yml"
     sed -i 's,<CLIENT_SECRET>,'"$CLIENT_SECRET"',g' "$APPDIR/docker-compose.yml"
     sed -i 's,<BACKEND_URL>,'"$BACKEND_URL"',g' "$APPDIR/docker-compose.yml"
-  fi
-
-  if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
-    echo "Fail to create service: $APP_SERVICE_NAME"
-    exit 1
+    #SET LOGO
+    if [ $LOGO -eq 1 ]; then
+      cp $LOGO_FILE "$APPDIR/app/src/src/assets/images/pia-lab.png"
+      cp $LOGO_FILE "$APPDIR/app/src/src/assets/images/pia-lab-small.png"
+    fi
   fi
   ;;
   *)
@@ -350,6 +372,12 @@ case $APPLICATION in
   exit 1
   ;;
 esac
+
+#CREATE SERVICE
+if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
+  echo "Fail to create service: $APP_SERVICE_NAME"
+  exit 1
+fi
 
 #################################
 # END SCRIPT - WAIT FOR WEBSITE #
