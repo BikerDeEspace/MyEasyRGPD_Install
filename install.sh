@@ -28,10 +28,7 @@ CLIENT_ID=""
 CLIENT_SECRET=""
 BACKEND_URL=""
 
-#############
-# FUNCTIONS #
-#############
-
+#FUNCTIONS
 # SCRIPT HELP MENU
 usage() {
 	echo "Script description"
@@ -111,9 +108,7 @@ wait_for_website(){
   echo "-> URL: http://$2"
 }
 
-##################
-# SCRIPT OPTIONS #
-##################
+#SCRIPT OPTIONS
 while [ "$#" -gt 0 ]
 do
 	case "$1" in
@@ -160,10 +155,7 @@ do
 	shift
 done
 
-########################
-# VERIFICATION OPTIONS #
-########################
-
+#VERIFICATION OPTIONS
 #CHECK GENERAL OPTIONS
 if [ "$APPLICATION" = "" ]; then
   echo 'Mandatory option missing or empty [-a, --application]'
@@ -254,9 +246,7 @@ if ! [[ "$response" =~ ^(yes|y)$ ]]; then
   exit 1
 fi
 
-####################
-# PACKAGES INSTALL #
-####################
+#PACKAGES INSTALL
 echo "** INSTALL PACKAGES FOR $OS **"
 
 PACKDIR=""
@@ -287,9 +277,7 @@ if ! bash $PACKDIR ; then
   exit 1
 fi
 
-#################
-# PROXY INSTALL #
-#################
+#PROXY INSTALL
 readonly PROXY_GIT=https://github.com/BikerDeEspace/nginx-proxy.git
 readonly PROXY_SERVICE_NAME="MyEasyRGPD_Proxy.service"
 readonly PROXY_DIR="/srv/www/nginx-proxy"
@@ -314,10 +302,7 @@ if ! install_service $PROXY_DIR $PROXY_SERVICE_NAME $PROGDIR ; then
   exit 1
 fi
 
-########################
-# INSTALL SELECTED APP #
-########################
-
+#INSTALL SELECTED APP
 ### BACKEND ###
 case $APPLICATION in
   'back'|'backend') 
@@ -379,9 +364,7 @@ if ! install_service $APPDIR $APP_SERVICE_NAME $PROGDIR ; then
   exit 1
 fi
 
-#################################
-# END SCRIPT - WAIT FOR WEBSITE #
-#################################
+#END SCRIPT - WAIT FOR WEBSITE
 wait_for_website $APP_SERVICE_NAME $VIRTUAL_HOST
 
 

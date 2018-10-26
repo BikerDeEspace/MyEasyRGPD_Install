@@ -24,10 +24,7 @@ RM_IMAGES=0
 ORGNAME=""
 APPLICATION=""
 
-#############
-# FUNCTIONS #
-#############
-
+#FUNCTIONS
 # SCRIPT HELP MENU
 usage() {
 	echo "Script description"
@@ -66,9 +63,7 @@ uninstall_service(){
 	rm /etc/systemd/system/$1
 }
 
-##################
-# SCRIPT OPTIONS #
-##################
+#SCRIPT OPTIONS
 while [ "$#" -gt 0 ]
 do
 	case "$1" in
@@ -99,9 +94,7 @@ do
 	shift
 done
 
-#################
-# VERIFICATIONS #
-#################
+#OPTIONS VERIFICATIONS
 if [ "$ORGNAME" = "" ]; then
 		echo 'Mandatory option missing or empty [-o, --org]'
 		exit 1
@@ -119,7 +112,7 @@ if [ "$APPLICATION" = "" ]; then
 		exit 1
 fi
 
-# SET VAR
+#SET ENV
 readonly MAIN_DIR="/usr/share/MyEasyRGPD"
 case $APPLICATION in
   'back'|'backend') 
@@ -154,52 +147,41 @@ if ! [[ "$response" =~ ^(yes|y)$ ]]; then
   exit 1
 fi
 
-
-##############################
-# SERVICE UNINSTALL & REMOVE #
-##############################
+#SERVICE UNINSTALL
 if ! uninstall_service $APP_SERVICE_NAME ; then
 	echo "Uninstall service failed : $APP_SERVICE_NAME"
 	exit 1
 fi
 
-######################
-#  REMOVE DOCKER ELT #
-######################
+#REMOVE DOCKER VOLUMES / IMAGES
 docker volume rm $(docker volume ls | grep $ORGNAME)
 docker image rm -f $(docker image ls | grep $ORGNAME)
 
-#####################
-# APP FOLDER REMOVE #
-#####################
+#APP FOLDER REMOVE
 echo "** Remove folder $APP_DIR **"
 rm -rf "$APP_DIR"
 
-##########################
-# NO OTHER APP INSTALLED #
-##########################
+#TODO ONLY IF NO OTHER APP INSTALLED 
 if [ ! "$(ls -A $MAIN_DIR/backend)" ] && [ ! "$(ls -A $MAIN_DIR/frontend)" ]; then
   echo "No other MyEasyRGPD ..."
 	echo "	- Removing Proxy & Package"
-	##########################
-	# MAIN APP FOLDER REMOVE #
-	##########################
+	
+	#MAIN APP FOLDER REMOVE /usr/share/MyEasyRGPD
 	rm -rf $MAIN_DIR
 
-	################
-	# REMOVE PROXY #
-	################
+	#REMOVE PROXY
 	echo "** UNINSTALL PROXY **"
 
 	readonly PROXY_SERVICE_NAME="MyEasyRGPD_Proxy.service"
 	readonly PROXY_DIR="/srv/www/nginx-proxy"
 
+	##REMOVE PROXY SERVICE 
 	if ! uninstall_service $PROXY_SERVICE_NAME ; then
 		echo "Uninstall service failed : $PROXY_SERVICE_NAME"
 		exit 1
 	fi
 
-	
+	##REMOVE PROXY DIRECTORY  
 	rm -rf $PROXY_DIR
 
 	#REMOVE CONTAINER / VOLUME / IMAGE
@@ -208,9 +190,7 @@ if [ ! "$(ls -A $MAIN_DIR/backend)" ] && [ ! "$(ls -A $MAIN_DIR/frontend)" ]; th
 	docker image rm $(docker image ls -q)
 	docker network rm $(docker network ls -q)
 
-	######################
-	# PACKAGES UNINSTALL #
-	######################
+	#PACKAGES UNINSTALL (Docker ...)
 	echo "** UNINSTALL PACKAGES FOR $OS **"
 	PACKDIR=""
 	case $OS in
@@ -228,19 +208,15 @@ if [ ! "$(ls -A $MAIN_DIR/backend)" ] && [ ! "$(ls -A $MAIN_DIR/frontend)" ]; th
 			exit 1
 			;;
 	esac
-
 	if [ ! -f $PACKDIR ]; then
 		echo "Package uninstall script not found!"
 		echo "Please Check : $PACKDIR"
 		exit 1
 	fi
-
 	if ! bash $PACKDIR ; then
 		echo "Package uninstall fail"
 		exit 1
 	fi
 fi
 
-#######################
-# END UNISTALL SCRIPT #
-#######################
+#END UNISTALL SCRIPT
