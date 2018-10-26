@@ -46,12 +46,6 @@ usage() {
 	echo "      Mandatory option"
 	echo "      Values : back, backend, front, frontend"
 	echo
-	echo " 	-v, --volume"
-	echo "			Optional - Remove Docker volumes for the app"
-	echo 
-	echo " 	-i, --image"
-	echo "			Optional - Remove Docker images for the app"
-	echo
 }
 
 # UNISTALL SERVICE
@@ -90,13 +84,6 @@ do
   #Application
 	-a|--application)
 		APPLICATION=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-		;;
-	#Docker
-	-v|--volume)
-		RM_VOLUMES=1
-		;;
-	-i|--image)
-		RM_IMAGES=1
 		;;
   #Others 
 	--)
@@ -149,13 +136,19 @@ case $APPLICATION in
   ;;
 esac
 
+#ENV RECAP
+echo
 echo "ENVIRONMENT VARIABLES RECAP"
 echo "  - HOST SYSTEM : $OS"
 echo "  - APP DIR : $APP_DIR"
 echo "  - APP SERVICE NAME : $APP_SERVICE_NAME"
 
 #ASK FOR CONFIRM BEFORE CONTINUE
-read -r -p "Is this correct? [y/N] " response
+echo
+echo " WARNING This will remove :"
+echo "	- Docker volumes (For selected application)"
+echo " 	- Docker images (For selected application)"
+read -r -p "Are you sure? [y/N] " response
 response=${response,,}
 if ! [[ "$response" =~ ^(yes|y)$ ]]; then
   exit 1
@@ -173,16 +166,8 @@ fi
 ######################
 #  REMOVE DOCKER ELT #
 ######################
-# VOLUMES
-if [ $RM_VOLUMES -eq 1 ]; then
-	echo "** Remove volumes **"
-	docker volume rm $(docker volume ls | grep $ORGNAME)
-fi
-# IMAGES
-if [ $RM_IMAGES -eq 1 ]; then
-	echo "** Remove images **"
-	docker image rm -f $(docker image ls | grep $ORGNAME)
-fi
+docker volume rm $(docker volume ls | grep $ORGNAME)
+docker image rm -f $(docker image ls | grep $ORGNAME)
 
 #####################
 # APP FOLDER REMOVE #
@@ -214,18 +199,13 @@ if [ ! "$(ls -A $MAIN_DIR/backend)" ] && [ ! "$(ls -A $MAIN_DIR/frontend)" ]; th
 		exit 1
 	fi
 
+	
 	rm -rf $PROXY_DIR
 
 	#REMOVE CONTAINER / VOLUME / IMAGE
 	docker container rm $(docker container ls -aq)
-	if [ $RM_VOLUMES -eq 1 ]; then
-		echo "** Remove volumes **"
-		docker volume rm $(docker volume ls | grep $ORGNAME)
-	fi
-	if [ $RM_IMAGES -eq 1 ]; then
-		echo "** Remove images **"
-		docker image rm $(docker image ls -q)
-	fi
+	docker volume rm $(docker volume ls | grep $ORGNAME)
+	docker image rm $(docker image ls -q)
 	docker network rm $(docker network ls -q)
 
 	######################
