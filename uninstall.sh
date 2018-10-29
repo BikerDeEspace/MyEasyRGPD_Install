@@ -36,6 +36,9 @@ usage() {
 	echo "  -h, --help"
 	echo "      This help text."
 	echo
+	echo "  -l, --list"
+	echo "      List of installed application."
+	echo
 	echo "  -o, --org"
 	echo "      Mandatory option"
 	echo
@@ -43,6 +46,19 @@ usage() {
 	echo "      Mandatory option"
 	echo "      Values : back, backend, front, frontend"
 	echo
+}
+# APP LIST
+list() {
+	BACKDIR="/usr/share/MyEasyRGPD/backend"
+	FRONTDIR="/usr/share/MyEasyRGPD/frontend"
+	if [ -d $BACKDIR ]; then
+		echo "Backend :"
+		ls $BACKDIR -l | awk '{print $NF}'
+	fi
+	if [ -d $FRONTDIR ]; then 
+		echo "Frontend :"
+		ls $FRONTDIR -l | awk '{print $NF}'
+	fi
 }
 
 # UNISTALL SERVICE
@@ -70,6 +86,10 @@ do
   #Help
 	-h|--help)
 		usage
+		exit 0
+		;;
+	-l|--list)
+		list
 		exit 0
 		;;
   #Organisation 
