@@ -44,7 +44,7 @@ usage() {
 	echo
 	echo "  -a, --application" 
 	echo "      Mandatory option"
-	echo "      Values : back, backend, front, frontend"
+	echo "      Values : back, front"
 	echo
 }
 # APP LIST
@@ -135,11 +135,11 @@ fi
 #SET ENV
 readonly MAIN_DIR="/usr/share/MyEasyRGPD"
 case $APPLICATION in
-  'back'|'backend') 
+  'back') 
 		readonly APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
 		readonly APP_DIR="$MAIN_DIR/backend/$ORGNAME"
 	;;
-  'front'|'frontend')
+  'front')
 		readonly APP_SERVICE_NAME="front.$ORGNAME.MyEasyRGPD.service"
 		readonly APP_DIR="$MAIN_DIR/frontend/$ORGNAME"
 	;;	

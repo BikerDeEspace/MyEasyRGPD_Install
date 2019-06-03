@@ -48,7 +48,7 @@ usage() {
 	echo
 	echo "  -a, --application" 
   echo "      Mandatory option"
-  echo "      Values : back, backend, front, frontend"
+  echo "      Values : back, front"
   echo
 	echo "  -e, --encrypt-mail"
   echo "      Mandatory option"
@@ -187,22 +187,22 @@ case $APPLICATION in
     #HOSTNAME
     if [ "$ORGNAME" = "" ]; then
       ORGNAME="default"
-      VIRTUAL_HOST="back.myeasyrgpd.lusis.lu"
-      LETSENCRYPT_HOST="back.myeasyrgpd.lusis.lu"
+      VIRTUAL_HOST="back.mydpia.eu"
+      LETSENCRYPT_HOST="back.mydpia.eu"
     else
-      VIRTUAL_HOST="back.$ORGNAME.myeasyrgpd.lusis.lu"
-      LETSENCRYPT_HOST="back.$ORGNAME.myeasyrgpd.lusis.lu"
+      VIRTUAL_HOST="back.$ORGNAME.mydpia.eu"
+      LETSENCRYPT_HOST="back.$ORGNAME.mydpia.eu"
     fi
   ;;
   'front'|'frontend')
     #HOSTNAME
     if [ "$ORGNAME" = "" ]; then
       ORGNAME="default"
-      VIRTUAL_HOST="front.myeasyrgpd.lusis.lu"
-      LETSENCRYPT_HOST="front.myeasyrgpd.lusis.lu"
+      VIRTUAL_HOST="front.mydpia.eu"
+      LETSENCRYPT_HOST="front.mydpia.eu"
     else
-      VIRTUAL_HOST="$ORGNAME.myeasyrgpd.lusis.lu"
-      LETSENCRYPT_HOST="$ORGNAME.myeasyrgpd.lusis.lu"
+      VIRTUAL_HOST="$ORGNAME.mydpia.eu"
+      LETSENCRYPT_HOST="$ORGNAME.mydpia.eu"
     fi
 
     #CLIENT CREDENTIALS
@@ -215,7 +215,7 @@ case $APPLICATION in
         exit 1
     fi
     if [ "$BACKEND_URL" = "" ]; then
-        BACKEND_URL="http://back.myeasyrgpd.lusis.lu"
+        BACKEND_URL="http://back.mydpia.eu"
         echo "BACKEND_URL set by default : $BACKEND_URL"
     fi
   ;;
@@ -233,7 +233,7 @@ echo "  - ORGNAME : $ORGNAME"
 echo "  - VIRTUAL HOST : $VIRTUAL_HOST"
 echo "  - LETSENCRYPT HOST : $LETSENCRYPT_HOST"
 echo "  - LETSENCRYPT EMAIL : $LETSENCRYPT_EMAIL"
-if [ $APPLICATION == "front" ] || [ $APPLICATION == "frontend" ]; then
+if [ $APPLICATION == "front" ]; then
   echo "  FRONTEND CREDENTIALS :"
   echo "  - CLIENT ID : $CLIENT_ID" 
   echo "  - CLIENT SECRET : $CLIENT_SECRET" 
@@ -310,7 +310,7 @@ fi
 #INSTALL SELECTED APP
 ### BACKEND ###
 case $APPLICATION in
-  'back'|'backend') 
+  'back') 
     readonly APPDIR="/usr/share/MyEasyRGPD/backend/$ORGNAME"
     readonly APP_SERVICE_NAME="back.$ORGNAME.MyEasyRGPD.service"
 
@@ -334,7 +334,7 @@ case $APPLICATION in
       fi
     fi
   ;;
-'front'|'frontend')
+'front')
   readonly APPDIR="/usr/share/MyEasyRGPD/frontend/$ORGNAME"
   readonly APP_SERVICE_NAME="front.$ORGNAME.MyEasyRGPD.service"
 
