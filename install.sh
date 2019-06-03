@@ -261,6 +261,9 @@ case $OS in
   'centos')
     PACKDIR="$PROGDIR/install/packages/centos.sh"
     ;;
+  'fedora')
+    PACKDIR="$PROGDIR/install/packages/fedora.sh"
+    ;;
 	*)
 		echo "System : $OS not supported."
     exit 1
@@ -292,7 +295,7 @@ if ! [ -f "$PROXY_DIR/docker-compose.yml" ]; then
 
   #CHECK PORT 80
   if $(sudo netstat -tulpn | grep LISTEN | grep -E 80) ; then
-      echo "Port 80 already used!"
+      echo "Proxy : Port 80 already used!"
       exit 1
   fi
   #GET PROXY
