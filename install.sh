@@ -170,6 +170,7 @@ do
     ;;
   --db-rpw)
     DB_ROOT_PW="$2"
+    ;;
   #CREDENTIALS (FRONTEND)
 	-i|--client-id)
 		CLIENT_ID="$2"
