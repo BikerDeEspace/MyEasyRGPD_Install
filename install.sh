@@ -376,6 +376,7 @@ case $APPLICATION in
       sed -i 's,<DB_PW>,'"$DB_ROOT_PW"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<DB_ROOT_PW>,'"$DB_ROOT_PW"',g' "$PROGDIR/environment/tmp.env"
       sed -i 's,<DB_NAME>,'"$DB_NAME"',g' "$PROGDIR/environment/tmp.env"
+      sed -i 's,<APP_FOLDER>,'"$APPDIR"',g' "$PROGDIR/environment/tmp.env"
       #COPY ./environment/tmp.env -> php/src/app.env & .env
       cp -f "$PROGDIR/environment/tmp.env" "$APPDIR/php/app.env"
       mv -f "$PROGDIR/environment/tmp.env" "$APPDIR/.env"
